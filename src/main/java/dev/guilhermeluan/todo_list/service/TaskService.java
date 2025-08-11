@@ -38,6 +38,7 @@ public class TaskService {
     public Task createSubTask(Long parentId, Task subTask){
         Task parentTask = findByIdOrThrowNotFound(parentId);
         subTask.setParentTask(parentTask);
+        subTask.setIsSubTask(true);
         parentTask.getSubTasks().add(subTask);
         return repository.save(subTask);
     }

@@ -35,6 +35,9 @@ public class Task {
     @JoinColumn(name = "parent_task_id")
     private Task parentTask;
 
+    @Column(nullable = false)
+    private boolean isSubTask = false;
+
     @OneToMany(
             mappedBy = "parentTask",
             cascade = CascadeType.ALL,
@@ -43,7 +46,7 @@ public class Task {
     )
     private List<Task> subTasks = new ArrayList<>();
 
-    public Task(Long id, String title, String description, ZonedDateTime dueDate, TaskStatus status, Priority priority, Task parentTask, List<Task> subTasks) {
+    public Task(Long id, String title, String description, ZonedDateTime dueDate, TaskStatus status, Priority priority, Task parentTask, boolean isParent, List<Task> subTasks) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -51,6 +54,7 @@ public class Task {
         this.status = status;
         this.priority = priority;
         this.parentTask = parentTask;
+        this.isSubTask = isParent;
         this.subTasks = subTasks;
     }
 
@@ -119,6 +123,14 @@ public class Task {
 
     public void setSubTasks(List<Task> subTasks) {
         this.subTasks = subTasks;
+    }
+
+    public boolean isParent() {
+        return isSubTask;
+    }
+
+    public void setIsSubTask(boolean parent) {
+        isSubTask = parent;
     }
 
     @Override

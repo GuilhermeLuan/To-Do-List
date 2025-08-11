@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 public class TaskSpecification {
     public static Specification<Task> isTopLevelTask() {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.isNull(root.get("parentTask"));
+        return (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get("isSubTask"));
     }
 
     public static Specification<Task> hasStatus(TaskStatus status) {

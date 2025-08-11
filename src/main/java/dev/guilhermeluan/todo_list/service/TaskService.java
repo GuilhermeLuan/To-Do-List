@@ -1,10 +1,17 @@
 package dev.guilhermeluan.todo_list.service;
 
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
+import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
+import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.repository.TaskRepository;
+import dev.guilhermeluan.todo_list.repository.TaskSpecification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -15,8 +22,20 @@ public class TaskService {
         this.repository = repository;
     }
 
-    public List<Task> findAll() {
-        return repository.findAll();
+    public Page<Task> findAll(TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
+        Specification<Task> spec = Specification.not(null);
+
+        if (status != null) {
+            spec = spec.and(TaskSpecification.hasStatus(status));
+        }
+        if (priority != null) {
+            spec = spec.and(TaskSpecification.hasPriority(priority));
+        }
+        if (dueDate != null) {
+            spec = spec.and(TaskSpecification.hasDueDate(dueDate));
+        }
+
+        return repository.findAll(spec, pageable);
     }
 
     public Task findByIdOrThrowNotFound(Long id) {

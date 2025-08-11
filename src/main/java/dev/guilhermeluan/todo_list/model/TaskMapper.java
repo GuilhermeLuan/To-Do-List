@@ -10,4 +10,6 @@ public interface TaskMapper {
     Task toTask(TaskPostRequest request);
 
     TaskPostResponse toTaskPostResponse(Task taskSaved);
+
+    dev.guilhermeluan.dtos.TaskGetResponse toTaskResponseDTO(Task task);
 }

@@ -125,7 +125,7 @@ public class Task {
         this.subTasks = subTasks;
     }
 
-    public boolean isParent() {
+    public boolean isSubTask() {
         return isSubTask;
     }
 

@@ -37,6 +37,11 @@ public class TaskService {
 
     public Task createSubTask(Long parentId, Task subTask){
         Task parentTask = findByIdOrThrowNotFound(parentId);
+
+        if(parentTask.isSubTask()){
+            throw new IllegalArgumentException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");
+        }
+
         subTask.setParentTask(parentTask);
         subTask.setIsSubTask(true);
         parentTask.getSubTasks().add(subTask);
@@ -52,12 +57,6 @@ public class TaskService {
         findByIdOrThrowNotFound(id);
     }
 
-    public void assertThatSubTaskDoesNotExist(Long id) {
-        Task task = findByIdOrThrowNotFound(id);
-        if (!task.getSubTasks().isEmpty()) {
-            throw new IllegalStateException("Cannot delete task with existing sub-tasks");
-        }
-    }
 
     public Task updateStatus(TaskStatus newStatus, Long id) {
         Task existingTask = findByIdOrThrowNotFound(id);

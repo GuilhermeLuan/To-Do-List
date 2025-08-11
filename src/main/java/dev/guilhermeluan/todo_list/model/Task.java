@@ -3,6 +3,8 @@ package dev.guilhermeluan.todo_list.model;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Task {
@@ -25,4 +27,15 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     private Priority priority;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_task_id")
+    private Task parentTask;
+
+    @OneToMany(
+            mappedBy = "parentTask",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Task> subtasks = new ArrayList<>();
 }

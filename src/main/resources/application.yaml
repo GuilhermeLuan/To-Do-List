@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: todo-list
+  datasource:
+    url: jdbc:mysql://localhost:3306/lista_tarefa?userTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password: admin
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop

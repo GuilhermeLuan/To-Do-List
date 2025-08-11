@@ -1,0 +1,14 @@
+services:
+  mysql:
+    image: mysql:9.0.1
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: tarefa
+      MYSQL_PASSWORD: admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - lista-tarefa-db:/var/lib/mysql
+
+volumes:
+  lista-tarefa-db:

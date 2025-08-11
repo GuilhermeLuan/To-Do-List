@@ -39,17 +39,16 @@ public class TaskService {
 
     public Task findByIdOrThrowNotFound(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Task name already exists"));
+                .orElseThrow(() -> new NotFoundException("Task not found with id: " + id));
     }
 
     public Task save(Task task) {
         return repository.save(task);
     }
 
-    public void update(Task taskToUpdate) {
-        assertTaskExists(taskToUpdate.getId());
-        repository.save(taskToUpdate);
-    }
+//    public void update(Task taskToUpdate) {
+//
+//    }
 
     public void delete(Long id) {
         assertTaskExists(id);

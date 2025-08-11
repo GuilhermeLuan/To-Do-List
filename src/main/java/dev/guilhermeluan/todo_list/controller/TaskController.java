@@ -2,6 +2,7 @@ package dev.guilhermeluan.todo_list.controller;
 
 import dev.guilhermeluan.todo_list.dto.TaskPostRequest;
 import dev.guilhermeluan.todo_list.dto.TaskPostResponse;
+import dev.guilhermeluan.todo_list.dto.TaskPutRequest;
 import dev.guilhermeluan.todo_list.dto.UpdateTaskStatusRequest;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
@@ -60,4 +61,12 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+//    @PatchMapping("/{id}")
+//    public ResponseEntity<Void> updateTask(@RequestBody @Valid TaskPutRequest request, @PathVariable Long id) {
+//        Task taskToUpdate = mapper.toTask(request);
+//        taskToUpdate.setId(id);
+//        service.update(taskToUpdate);
+//
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+//    }
 }

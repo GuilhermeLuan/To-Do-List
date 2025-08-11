@@ -38,7 +38,8 @@ public class Task {
     @OneToMany(
             mappedBy = "parentTask",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.EAGER // Alterado para EAGER
     )
     private List<Task> subTasks = new ArrayList<>();
 

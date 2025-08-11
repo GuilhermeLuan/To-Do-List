@@ -1,4 +1,4 @@
-package dev.guilhermeluan.dtos;
+package dev.guilhermeluan.todo_list.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.guilhermeluan.todo_list.model.Priority;
@@ -22,7 +22,10 @@ public record TaskGetResponse(
     public record SubtaskInfo(
             Long id,
             String title,
-            TaskStatus status
+            String description,
+            ZonedDateTime dueDate,
+            TaskStatus status,
+            Priority priority
     ) {
     }
 }

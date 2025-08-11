@@ -1,10 +1,8 @@
 package dev.guilhermeluan.todo_list.model;
 
-import dev.guilhermeluan.todo_list.dto.TaskPostRequest;
-import dev.guilhermeluan.todo_list.dto.TaskPostResponse;
-import dev.guilhermeluan.todo_list.dto.TaskPutRequest;
-import dev.guilhermeluan.todo_list.dto.UpdateTaskStatusRequest;
+import dev.guilhermeluan.todo_list.dto.*;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
@@ -17,7 +15,9 @@ public interface TaskMapper {
 
     TaskPostResponse toTaskPostResponse(Task taskSaved);
 
-    dev.guilhermeluan.dtos.TaskGetResponse toTaskResponseDTO(Task task);
+    @Mapping(target = "parentTaskId", source = "parentTask.id")
+    @Mapping(target = "subtasks", source = "subTasks")
+    TaskGetResponse toTaskResponseDTO(Task task);
 
     TaskPutRequest toTaskPutRequest(Task task);
 }

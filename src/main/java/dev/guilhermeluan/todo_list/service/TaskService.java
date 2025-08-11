@@ -22,18 +22,7 @@ public class TaskService {
     }
 
     public Page<Task> findAll(TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
-        Specification<Task> spec = Specification.not(null);
-
-        if (status != null) {
-            spec = spec.and(TaskSpecification.hasStatus(status));
-        }
-        if (priority != null) {
-            spec = spec.and(TaskSpecification.hasPriority(priority));
-        }
-        if (dueDate != null) {
-            spec = spec.and(TaskSpecification.hasDueDate(dueDate));
-        }
-
+        Specification<Task> spec = TaskSpecification.buildFilterSpec(status, priority, dueDate);
         return repository.findAll(spec, pageable);
     }
 
@@ -46,19 +35,16 @@ public class TaskService {
         return repository.save(task);
     }
 
-//    public void update(Task taskToUpdate) {
-//
-//    }
+    public Task createSubTask(Long parentId, Task subTask){
+        Task parentTask = findByIdOrThrowNotFound(parentId);
+        subTask.setParentTask(parentTask);
+        parentTask.getSubTasks().add(subTask);
+        return repository.save(subTask);
+    }
 
     public void delete(Long id) {
         assertTaskExists(id);
         repository.deleteById(id);
-    }
-
-    public Task createSubTask(Long parentId, Task subTask) {
-        Task parentTask = findByIdOrThrowNotFound(parentId);
-        subTask.setParentTask(parentTask);
-        return repository.save(subTask);
     }
 
     public void assertTaskExists(Long id) {

@@ -28,7 +28,7 @@ public class TaskService {
 
     public Task findByIdOrThrowNotFound(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
     }
 
     public Task save(Task task) {
@@ -57,10 +57,23 @@ public class TaskService {
         findByIdOrThrowNotFound(id);
     }
 
-
     public Task updateStatus(TaskStatus newStatus, Long id) {
         Task existingTask = findByIdOrThrowNotFound(id);
+
+        if (newStatus == TaskStatus.DONE && !existingTask.isSubTask()) {
+            assertThatAllSubTasksAreCompleted(existingTask);
+        }
+
         existingTask.setStatus(newStatus);
         return repository.save(existingTask);
+    }
+
+    private void assertThatAllSubTasksAreCompleted(Task parentTask) {
+        boolean hasIncompleteSubTasks = parentTask.getSubTasks().stream()
+                .anyMatch(subTask -> subTask.getStatus() != TaskStatus.DONE);
+
+        if (hasIncompleteSubTasks) {
+            throw new IllegalStateException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal.");
+        }
     }
 }

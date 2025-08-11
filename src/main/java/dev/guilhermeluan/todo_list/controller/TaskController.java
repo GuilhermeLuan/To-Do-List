@@ -1,7 +1,8 @@
 package dev.guilhermeluan.todo_list.controller;
 
-import dev.guilhermeluan.todo_list.dto.*;
+import dev.guilhermeluan.todo_list.dto.TaskPostRequest;
 import dev.guilhermeluan.todo_list.dto.TaskPostResponse;
+import dev.guilhermeluan.todo_list.dto.UpdateTaskStatusRequest;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskMapper;
@@ -49,6 +50,14 @@ public class TaskController {
         Page<dev.guilhermeluan.dtos.TaskGetResponse> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(tasksResponsePage);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Void> updateStatus(@RequestBody @Valid UpdateTaskStatusRequest request, @PathVariable Long id) {
+        Task taskToUpdate = mapper.toTask(request);
+        service.updateStatus(taskToUpdate.getStatus(), id);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

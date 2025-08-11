@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -72,5 +71,11 @@ public class TaskService {
         if (!task.getSubTasks().isEmpty()) {
             throw new IllegalStateException("Cannot delete task with existing sub-tasks");
         }
+    }
+
+    public Task updateStatus(TaskStatus newStatus, Long id) {
+        Task existingTask = findByIdOrThrowNotFound(id);
+        existingTask.setStatus(newStatus);
+        return repository.save(existingTask);
     }
 }

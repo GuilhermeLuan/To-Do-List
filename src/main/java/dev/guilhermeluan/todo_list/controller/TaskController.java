@@ -236,22 +236,12 @@ public class TaskController {
         @Parameter(description = "Direção da ordenação (ASC ou DESC)", example = "ASC")
         @RequestParam(defaultValue = "ASC") String direction
     ) {
-        try {
-            Sort.Direction sortDirection = Sort.Direction.fromString(direction.toUpperCase());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(direction), sort));
 
-            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+        Page<Task> tasksPage = service.findAll(status, priority, dueDate, pageable);
+        Page<TaskGetResponse> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
 
-            Page<Task> tasksPage = service.findAll(status, priority, dueDate, pageable);
-            Page<TaskGetResponse> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
-
-            return ResponseEntity.status(HttpStatus.OK).body(tasksResponsePage);
-        } catch (IllegalArgumentException e) {
-            Pageable defaultPageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
-            Page<Task> tasksPage = service.findAll(status, priority, dueDate, defaultPageable);
-            Page<TaskGetResponse> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
-
-            return ResponseEntity.status(HttpStatus.OK).body(tasksResponsePage);
-        }
+        return ResponseEntity.ok(tasksResponsePage);
     }
 
     @PatchMapping("/{id}/status")

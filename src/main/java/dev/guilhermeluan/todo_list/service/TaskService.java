@@ -1,5 +1,6 @@
 package dev.guilhermeluan.todo_list.service;
 
+import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
@@ -39,7 +40,7 @@ public class TaskService {
         Task parentTask = findByIdOrThrowNotFound(parentId);
 
         if (parentTask.isSubTask()) {
-            throw new IllegalArgumentException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");
+            throw new BadRequestException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");
         }
 
         subTask.setParentTask(parentTask);
@@ -73,7 +74,7 @@ public class TaskService {
                 .anyMatch(subTask -> subTask.getStatus() != TaskStatus.DONE);
 
         if (hasIncompleteSubTasks) {
-            throw new IllegalStateException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal.");
+            throw new BadRequestException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal.");
         }
     }
 }

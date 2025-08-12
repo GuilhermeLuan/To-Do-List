@@ -1,5 +1,7 @@
 package dev.guilhermeluan.todo_list.controller;
 
+import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
+import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.service.TaskService;
@@ -23,8 +25,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -64,28 +68,64 @@ class TaskControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-//    @Test
-//    @DisplayName("POST /v1/tasks/99/subtask creates a task when is successful")
-//    void createSubTask_CreatesSubTasks_WhenIsSuccessful() throws Exception {
-//        var parentTask = taskUtils.newSavedTask();
-//        var parentTaskId = parentTask.getId();
-//
-//        var subTaskToSave = taskUtils.newSubTaskToSave();
-//        subTaskToSave.setParentTask(parentTask);
-//
-//        BDDMockito.when(taskService.save(ArgumentMatchers.any())).thenReturn(parentTask);
-//        BDDMockito.when(taskService.save(ArgumentMatchers.any())).thenReturn(subTaskToSave);
-//
-//        var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
-//
-//        mockMvc.perform(post(URL + "/" + parentTaskId + "/subtasks")
-//                        .content(request)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andDo(print())
-//                .andExpect(status().isCreated());
-//
-//    }
+    @Test
+    @DisplayName("POST /v1/tasks/1/subtasks creates a subtask when is successful")
+    void createSubTask_CreatesSubTasks_WhenIsSuccessful() throws Exception {
+        var parentTask = taskUtils.newSavedTask();
+        var parentTaskId = parentTask.getId();
+
+        var subTaskToSave = taskUtils.newSubTaskToSave();
+        subTaskToSave.setParentTask(parentTask);
+
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(parentTaskId), ArgumentMatchers.any()))
+                .thenReturn(subTaskToSave);
+
+        var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
+
+        mockMvc.perform(post(URL + "/" + parentTaskId + "/subtasks")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @DisplayName("POST /v1/tasks/99/subtasks throws NotFoundException when parent task does not exist")
+    void createSubTask_ThrowsNotFoundException_WhenParentTaskDoesNotExist() throws Exception {
+        var nonExistentParentId = 99L;
+
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(nonExistentParentId), ArgumentMatchers.any()))
+                .thenThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentParentId));
+
+        var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
+
+        mockMvc.perform(post(URL + "/" + nonExistentParentId + "/subtasks")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("POST /v1/tasks/1/subtasks throws BadRequestException when parent task is already a subtask")
+    void createSubTask_BadRequestExceptionn_WhenParentTaskIsAlreadySubTask() throws Exception {
+        var subTaskId = 1L;
+
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(subTaskId), ArgumentMatchers.any()))
+                .thenThrow(new BadRequestException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal"));
+
+        var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
+
+        mockMvc.perform(post(URL + "/" + subTaskId + "/subtasks")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 
     @Test
     @DisplayName("GET  /v1/tasks returns list of all tasks when argument is null")
@@ -146,5 +186,86 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.number").value(0))
                 .andExpect(jsonPath("$.size").value(5));
+    }
+
+    @Test
+    @DisplayName("PATCH /v1/tasks/1/status updates task status when is successful")
+    void updateStatus_UpdatesTaskStatus_WhenIsSuccessful() throws Exception {
+        var taskId = 1L;
+        var taskToUpdate = taskUtils.newSavedTask();
+        taskToUpdate.setStatus(TaskStatus.IN_PROGRESS);
+
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.IN_PROGRESS), ArgumentMatchers.eq(taskId)))
+                .thenReturn(taskToUpdate);
+
+        var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
+
+        mockMvc.perform(patch(URL + "/" + taskId + "/status")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("PATCH /v1/tasks/99/status throws NotFoundException when task does not exist")
+    void updateStatus_ThrowsNotFoundException_WhenTaskDoesNotExist() throws Exception {
+        var nonExistentTaskId = 99L;
+
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.any(TaskStatus.class), ArgumentMatchers.eq(nonExistentTaskId)))
+                .thenThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId));
+
+        var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
+
+        mockMvc.perform(patch(URL + "/" + nonExistentTaskId + "/status")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PATCH /v1/tasks/1/status throws BadRequestException when parent task has incomplete subtasks")
+    void updateStatus_ThrowsBadRequestException_WhenParentTaskHasIncompleteSubTasks() throws Exception {
+        var taskId = 1L;
+
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.DONE), ArgumentMatchers.eq(taskId)))
+                .thenThrow(new BadRequestException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal."));
+
+        var request = fileUtils.readResourceFile("task/patch-request-status-done-200.json");
+
+        mockMvc.perform(patch(URL + "/" + taskId + "/status")
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/tasks/1 deletes task when is successful")
+    void delete_DeletesTask_WhenIsSuccessful() throws Exception {
+        var taskId = tasks.getFirst().getId();
+
+        BDDMockito.doNothing().when(taskService).delete(taskId);
+
+        mockMvc.perform(delete(URL + "/" + taskId))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE /v1/tasks/99 throws NotFoundException when task does not exist")
+    void delete_ThrowsNotFoundException_WhenTaskDoesNotExist() throws Exception {
+        var nonExistentTaskId = 99L;
+
+        BDDMockito.doThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId))
+                .when(taskService).delete(nonExistentTaskId);
+
+        mockMvc.perform(delete(URL + "/" + nonExistentTaskId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

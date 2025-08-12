@@ -1,5 +1,6 @@
 package dev.guilhermeluan.todo_list.service;
 
+import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
@@ -100,8 +101,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("createSubTask throws IllegalArgumentException when parent task is subtask")
-    void createSubTask_ThrowsIllegalArgumentException_WhenParentTaskIsSubTask() {
+    @DisplayName("createSubTask throws BadRequestException when parent task is subtask")
+    void createSubTask_ThrowsBadRequestException_WhenParentTaskIsSubTask() {
         var parentTask = tasks.getFirst();
         var parentTaskId = parentTask.getId();
         var subTaskToCreate = tasks.get(1);
@@ -113,7 +114,7 @@ class TaskServiceTest {
 
         Assertions.assertThatException().isThrownBy(
                 () -> taskService.createSubTask(parentTaskId, subTaskToCreate)
-        ).isInstanceOf(IllegalArgumentException.class);
+        ).isInstanceOf(BadRequestException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTaskId);
         Mockito.verify(taskRepository, Mockito.times(0)).save(subTaskToCreate);
@@ -221,8 +222,8 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("updateStatus throws IllegalStateException when parent task has incomplete subtasks")
-    void updateStatus_ThrowsIllegalStateException_WhenParentTaskHasIncompleteSubTasks() {
+    @DisplayName("updateStatus throws BadRequestException when parent task has incomplete subtasks")
+    void updateStatus_ThrowsBadRequestException_WhenParentTaskHasIncompleteSubTasks() {
         var parentTask = tasks.getFirst();
         parentTask.setIsSubTask(false);
 
@@ -244,7 +245,7 @@ class TaskServiceTest {
 
         Assertions.assertThatException().isThrownBy(
                 () -> taskService.updateStatus(newStatus, parentTask.getId())
-        ).isInstanceOf(IllegalStateException.class);
+        ).isInstanceOf(BadRequestException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTask.getId());
         Mockito.verify(taskRepository, Mockito.times(0)).save(parentTask);

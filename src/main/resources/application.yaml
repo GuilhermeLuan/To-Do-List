@@ -8,4 +8,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
+server:
+  error:
+    include-stacktrace: on_param

@@ -1,0 +1,38 @@
+{
+  "content": [
+    {
+      "id": 99,
+      "title": "Deploy application to production",
+      "description": "Ensure all environment variables are set and the database is migrated.",
+      "dueDate": "2025-08-19T16:01:54.4264829-03:00",
+      "status": "TO_DO",
+      "priority": "HIGH",
+      "subtasks": []
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 1,
+  "totalPages": 1,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "size": 10,
+  "number": 0,
+  "first": true,
+  "numberOfElements": 1,
+  "empty": false
+}

@@ -1,0 +1,7 @@
+{
+  "title": "Criar endpoint de login",
+  "description": "O endpoint deve receber email/senha e retornar um token JWT válido.",
+  "status": "TO_DO",
+  "priority": "HIGH",
+  "parentTaskId": 1
+}

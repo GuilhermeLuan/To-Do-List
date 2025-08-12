@@ -74,4 +74,17 @@ public class TaskUtils {
 
         return new ArrayList<>(List.of(parentTask, subTask1, subTask2));
     }
+
+    public Task newSubTaskToSave() {
+        Task subTask1 = new Task();
+        subTask1.setId(2L);
+        subTask1.setTitle("Book the venue");
+        subTask1.setDescription("Check availability and book the 'Grand Hall' for the event date.");
+        subTask1.setDueDate(ZonedDateTime.now().plusDays(10));
+        subTask1.setStatus(TaskStatus.TO_DO);
+        subTask1.setPriority(Priority.HIGH);
+        subTask1.setIsSubTask(true);
+
+        return subTask1;
+    }
 }

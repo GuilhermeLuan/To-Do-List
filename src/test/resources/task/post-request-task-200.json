@@ -1,0 +1,7 @@
+{
+  "title": "Develop the authentication API",
+  "description": "Implement JWT authentication with protected routes, as per the optional item in the spec.",
+  "dueDate": "2025-08-18T23:59:00-03:00[America/Sao_Paulo]",
+  "status": "TO_DO",
+  "priority": "HIGH"
+}

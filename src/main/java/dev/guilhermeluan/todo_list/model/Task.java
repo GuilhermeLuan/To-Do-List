@@ -137,7 +137,7 @@ public class Task {
     public final boolean equals(Object o) {
         if (!(o instanceof Task task)) return false;
 
-        return Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle()) && Objects.equals(getDescription(), task.getDescription()) && Objects.equals(getDueDate(), task.getDueDate()) && getStatus() == task.getStatus() && getPriority() == task.getPriority() && Objects.equals(getParentTask(), task.getParentTask()) && Objects.equals(getSubTasks(), task.getSubTasks());
+        return isSubTask() == task.isSubTask() && Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle()) && Objects.equals(getDescription(), task.getDescription()) && Objects.equals(getDueDate(), task.getDueDate()) && getStatus() == task.getStatus() && getPriority() == task.getPriority() && Objects.equals(getParentTask(), task.getParentTask()) && Objects.equals(getSubTasks(), task.getSubTasks());
     }
 
     @Override
@@ -149,6 +149,7 @@ public class Task {
         result = 31 * result + Objects.hashCode(getStatus());
         result = 31 * result + Objects.hashCode(getPriority());
         result = 31 * result + Objects.hashCode(getParentTask());
+        result = 31 * result + Boolean.hashCode(isSubTask());
         result = 31 * result + Objects.hashCode(getSubTasks());
         return result;
     }

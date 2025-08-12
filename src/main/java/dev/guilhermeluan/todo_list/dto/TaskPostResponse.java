@@ -25,4 +25,4 @@ public record TaskPostResponse(
             TaskStatus status
     ) {
     }
-    }
+}

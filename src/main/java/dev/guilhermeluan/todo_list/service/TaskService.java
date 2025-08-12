@@ -35,10 +35,10 @@ public class TaskService {
         return repository.save(task);
     }
 
-    public Task createSubTask(Long parentId, Task subTask){
+    public Task createSubTask(Long parentId, Task subTask) {
         Task parentTask = findByIdOrThrowNotFound(parentId);
 
-        if(parentTask.isSubTask()){
+        if (parentTask.isSubTask()) {
             throw new IllegalArgumentException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");
         }
 

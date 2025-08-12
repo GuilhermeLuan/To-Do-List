@@ -1,13 +1,15 @@
 package dev.guilhermeluan.todo_list.controller;
 
-import dev.guilhermeluan.todo_list.dto.*;
+import dev.guilhermeluan.todo_list.dto.TaskGetResponse;
+import dev.guilhermeluan.todo_list.dto.TaskPostRequest;
+import dev.guilhermeluan.todo_list.dto.TaskPostResponse;
+import dev.guilhermeluan.todo_list.dto.UpdateTaskStatusRequest;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskMapper;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.service.TaskService;
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;

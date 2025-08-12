@@ -1,9 +1,6 @@
 package dev.guilhermeluan.todo_list.controller;
 
-import dev.guilhermeluan.todo_list.dto.TaskGetResponse;
-import dev.guilhermeluan.todo_list.dto.TaskPostRequest;
-import dev.guilhermeluan.todo_list.dto.TaskPostResponse;
-import dev.guilhermeluan.todo_list.dto.UpdateTaskStatusRequest;
+import dev.guilhermeluan.todo_list.dto.*;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskMapper;
@@ -73,14 +70,15 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-//    @PatchMapping("/{id}")
-//    public ResponseEntity<Void> updateTask(@RequestBody @Valid TaskPutRequest request, @PathVariable Long id) {
-//        Task taskToUpdate = mapper.toTask(request);
-//        taskToUpdate.setId(id);
-//        service.update(taskToUpdate);
-//
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateTask(@RequestBody @Valid TaskPutRequest request, @PathVariable Long id) {
+        Task taskToUpdate = mapper.toTask(request);
+        taskToUpdate.setId(id);
+
+        service.update(taskToUpdate);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

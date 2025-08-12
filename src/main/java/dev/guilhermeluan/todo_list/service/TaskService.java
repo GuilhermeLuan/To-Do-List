@@ -36,6 +36,13 @@ public class TaskService {
         return repository.save(task);
     }
 
+    public void update(Task taskToUpdate){
+        Task taskFound = findByIdOrThrowNotFound(taskToUpdate.getId());
+        taskToUpdate.setSubTasks(taskFound.getSubTasks());
+
+        repository.save(taskToUpdate);
+    }
+
     public Task createSubTask(Long parentId, Task subTask) {
         Task parentTask = findByIdOrThrowNotFound(parentId);
 

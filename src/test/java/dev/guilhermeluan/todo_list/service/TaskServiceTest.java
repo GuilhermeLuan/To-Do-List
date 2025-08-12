@@ -251,4 +251,44 @@ class TaskServiceTest {
         Mockito.verify(taskRepository, Mockito.times(0)).save(parentTask);
     }
 
+    @Test
+    @DisplayName("update updates a task when successful")
+    void update_UpdatesTask_WhenSuccessful() {
+        var taskToUpdate = taskUtils.newSavedTask();
+        taskToUpdate.setTitle("Updated Title");
+        taskToUpdate.setDescription("Updated Description");
+        var taskId = taskToUpdate.getId();
+
+        var existingTask = taskUtils.newSavedTask();
+        existingTask.setId(taskId);
+
+        BDDMockito.when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+        BDDMockito.when(taskRepository.save(taskToUpdate)).thenReturn(taskToUpdate);
+
+        Assertions.assertThatNoException().isThrownBy(
+                () -> taskService.update(taskToUpdate)
+        );
+
+        Assertions.assertThat(taskToUpdate.getSubTasks()).isEqualTo(existingTask.getSubTasks());
+        Mockito.verify(taskRepository, Mockito.times(1)).findById(taskId);
+        Mockito.verify(taskRepository, Mockito.times(1)).save(taskToUpdate);
+    }
+
+    @Test
+    @DisplayName("update throws NotFoundException when task is not found")
+    void update_ThrowsNotFoundException_WhenTaskIsNotFound() {
+        var taskToUpdate = taskUtils.newSavedTask();
+        var taskId = taskToUpdate.getId();
+
+        BDDMockito.when(taskRepository.findById(taskId))
+                .thenThrow(NotFoundException.class);
+
+        Assertions.assertThatException().isThrownBy(
+                () -> taskService.update(taskToUpdate)
+        ).isInstanceOf(NotFoundException.class);
+
+        Mockito.verify(taskRepository, Mockito.times(1)).findById(taskId);
+        Mockito.verify(taskRepository, Mockito.times(0)).save(taskToUpdate);
+    }
+
 }

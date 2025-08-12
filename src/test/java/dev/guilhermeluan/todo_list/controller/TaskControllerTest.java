@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -242,6 +243,41 @@ class TaskControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PUT /v1/tasks/1 updates task when is successful")
+    void update_UpdatesTask_WhenIsSuccessful() throws Exception {
+        var taskId = 1L;
+
+        BDDMockito.doNothing().when(taskService).update(ArgumentMatchers.any());
+
+        var request = fileUtils.readResourceFile("task/put-request-task-200.json");
+
+        mockMvc.perform(put(URL + "/" + taskId)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("PUT /v1/tasks/99 throws NotFoundException when task does not exist")
+    void update_ThrowsNotFoundException_WhenTaskDoesNotExist() throws Exception {
+        var nonExistentTaskId = 99L;
+
+        BDDMockito.doThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId))
+                .when(taskService).update(ArgumentMatchers.any());
+
+        var request = fileUtils.readResourceFile("task/put-request-task-200.json");
+
+        mockMvc.perform(put(URL + "/" + nonExistentTaskId)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     @Test

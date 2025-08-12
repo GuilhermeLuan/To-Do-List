@@ -38,6 +38,11 @@ public class TaskService {
 
     public void update(Task taskToUpdate){
         Task taskFound = findByIdOrThrowNotFound(taskToUpdate.getId());
+
+        if (taskToUpdate.getStatus() == TaskStatus.DONE && !taskToUpdate.isSubTask()) {
+            assertThatAllSubTasksAreCompleted(taskFound);
+        }
+
         taskToUpdate.setSubTasks(taskFound.getSubTasks());
 
         repository.save(taskToUpdate);

@@ -21,8 +21,6 @@ public record TaskPostRequest(
 
         TaskStatus status,
 
-        Priority priority,
-
-        Long parentTaskId
+        Priority priority
 ) {
 }

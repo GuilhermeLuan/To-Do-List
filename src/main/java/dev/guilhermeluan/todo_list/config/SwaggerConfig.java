@@ -14,9 +14,9 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API com JWT")
+                        .title("API para gerenciamento de tarefas")
                         .version("1.0")
-                        .description("API com autenticação JWT"))
+                        .description("API para gerenciamento de tarefas, com funcionalidades como criação, listagem, atualização e remoção de tarefas."))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",

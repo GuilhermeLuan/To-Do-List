@@ -112,7 +112,7 @@ git clone https://github.com/GuilhermeLuan/To-Do-List.git
 ### 2. Navegue até o diretório do projeto:
 
 ```shell
-cd cd To-Do-List
+cd To-Do-List
 ```
 
 ### 3. Inicie o banco de dados MySQL com Docker:

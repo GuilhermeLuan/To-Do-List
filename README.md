@@ -106,19 +106,19 @@ Siga estas etapas para configurar e executar a API em seu ambiente:
 ### 1. Clone o repositório:
 
 ```shell
-git clone https://github.com/GuilhermeLuan/todo-list.git
+git clone https://github.com/GuilhermeLuan/To-Do-List.git
 ```
 
 ### 2. Navegue até o diretório do projeto:
 
 ```shell
-cd todo-list/
+cd cd To-Do-List
 ```
 
 ### 3. Inicie o banco de dados MySQL com Docker:
 
 ```shell
-docker compose up
+docker compose up -d
 ```
 
 ### 4. Execute a aplicação:
@@ -126,12 +126,6 @@ docker compose up
 ```shell
 ./mvnw clean install
 ./mvnw spring-boot:run
-```
-
-**No Windows, use:**
-```shell
-mvnw.cmd clean install
-mvnw.cmd spring-boot:run
 ```
 
 A API estará acessível em **http://localhost:8080/**

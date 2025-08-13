@@ -297,9 +297,12 @@ public class TaskController {
             )
             @RequestBody @Valid UpdateTaskStatusRequest request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+
         Task taskToUpdate = mapper.toTask(request);
-        service.updateStatus(taskToUpdate.getStatus(), id);
+        service.updateStatus(taskToUpdate.getStatus(), id, user.getId());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -338,11 +341,14 @@ public class TaskController {
             )
             @RequestBody @Valid TaskPutRequest request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
-            @PathVariable Long id) {
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+
         Task taskToUpdate = mapper.toTask(request);
         taskToUpdate.setId(id);
 
-        service.update(taskToUpdate);
+        service.update(taskToUpdate, user.getId());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -359,8 +365,12 @@ public class TaskController {
     })
     public ResponseEntity<Void> delete(
             @Parameter(description = "ID da tarefa a ser excluída", required = true, example = "1")
-            @PathVariable Long id) {
-        service.delete(id);
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+
+        service.delete(id, user.getId());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

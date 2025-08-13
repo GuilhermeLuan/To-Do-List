@@ -3,9 +3,9 @@ package dev.guilhermeluan.todo_list.controller;
 import dev.guilhermeluan.todo_list.dto.AuthenticationDTO;
 import dev.guilhermeluan.todo_list.dto.LoginResponseDTO;
 import dev.guilhermeluan.todo_list.dto.RegisterDTO;
+import dev.guilhermeluan.todo_list.infra.security.TokenService;
 import dev.guilhermeluan.todo_list.model.User;
 import dev.guilhermeluan.todo_list.repository.UserRepository;
-import dev.guilhermeluan.todo_list.infra.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +41,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
-        if(this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
+        if (this.userRepository.findByLogin(data.login()) != null) return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
         User newUser = new User(data.login(), encryptedPassword, data.role());

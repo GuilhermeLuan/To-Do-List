@@ -165,8 +165,10 @@ public class TaskController {
 
         Task subTaskToSave = mapper.toTask(request);
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+
         subTaskToSave.setUser(user);
-        Task subTaskSaved = service.createSubTask(parentId, subTaskToSave);
+
+        Task subTaskSaved = service.createSubTask(parentId, subTaskToSave, user.getId());
 
         TaskPostResponse response = mapper.toTaskPostResponse(subTaskSaved);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

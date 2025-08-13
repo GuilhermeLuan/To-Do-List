@@ -102,7 +102,7 @@ class TaskControllerTest {
         var subTaskToSave = taskUtils.newSubTaskToSave();
         subTaskToSave.setParentTask(parentTask);
 
-        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(parentTaskId), ArgumentMatchers.any()))
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(parentTaskId), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenReturn(subTaskToSave);
 
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
@@ -122,7 +122,7 @@ class TaskControllerTest {
     void createSubTask_ThrowsNotFoundException_WhenParentTaskDoesNotExist() throws Exception {
         var nonExistentParentId = 99L;
 
-        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(nonExistentParentId), ArgumentMatchers.any()))
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(nonExistentParentId), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentParentId));
 
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
@@ -141,7 +141,7 @@ class TaskControllerTest {
     void createSubTask_BadRequestExceptionn_WhenParentTaskIsAlreadySubTask() throws Exception {
         var subTaskId = 1L;
 
-        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(subTaskId), ArgumentMatchers.any()))
+        BDDMockito.when(taskService.createSubTask(ArgumentMatchers.eq(subTaskId), ArgumentMatchers.any(), ArgumentMatchers.any()))
                 .thenThrow(new BadRequestException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal"));
 
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");

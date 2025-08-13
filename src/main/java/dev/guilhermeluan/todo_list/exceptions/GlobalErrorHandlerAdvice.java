@@ -30,12 +30,21 @@ public class GlobalErrorHandlerAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<DefaultErrorMessage> handleBMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ResponseEntity<DefaultErrorMessage> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         var error = new DefaultErrorMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 Arrays.toString(e.getDetailMessageArguments())
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON).body(error);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<DefaultErrorMessage> handleForbiddenException(ForbiddenException e) {
+        var error = new DefaultErrorMessage(
+                HttpStatus.FORBIDDEN.value(),
+                e.getReason()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(error);
     }
 
 }

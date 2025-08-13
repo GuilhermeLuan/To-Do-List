@@ -1,6 +1,7 @@
 package dev.guilhermeluan.todo_list.service;
 
 import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
+import dev.guilhermeluan.todo_list.exceptions.ForbiddenException;
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
@@ -48,8 +49,12 @@ public class TaskService {
         repository.save(taskToUpdate);
     }
 
-    public Task createSubTask(Long parentId, Task subTask) {
+    public Task createSubTask(Long parentId, Task subTask, Long userId) {
         Task parentTask = findByIdOrThrowNotFound(parentId);
+
+        if (!parentTask.getUser().getId().equals(userId)) {
+            throw new ForbiddenException("A tarefa pai não pertence ao usuário autenticado.");
+        }
 
         if (parentTask.isSubTask()) {
             throw new BadRequestException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");

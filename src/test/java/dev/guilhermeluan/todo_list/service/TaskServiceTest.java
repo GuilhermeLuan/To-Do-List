@@ -88,7 +88,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTask));
         BDDMockito.when(taskRepository.save(subTaskToCreate)).thenReturn(subTaskToCreate);
 
-        var subTaskCreated = taskService.createSubTask(parentTaskId, subTaskToCreate);
+        var subTaskCreated = taskService.createSubTask( parentTaskId, subTaskToCreate, 1L);
 
         Assertions.assertThat(subTaskCreated).isEqualTo(subTaskToCreate);
         Assertions.assertThat(subTaskCreated.getParentTask()).isEqualTo(parentTask);
@@ -113,7 +113,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTask));
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.createSubTask(parentTaskId, subTaskToCreate)
+                () -> taskService.createSubTask(parentTaskId, subTaskToCreate, 1L)
         ).isInstanceOf(BadRequestException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTaskId);

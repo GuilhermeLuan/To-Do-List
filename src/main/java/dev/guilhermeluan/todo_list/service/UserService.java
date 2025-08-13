@@ -1,5 +1,7 @@
 package dev.guilhermeluan.todo_list.service;
 
+import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
+import dev.guilhermeluan.todo_list.model.User;
 import dev.guilhermeluan.todo_list.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,5 +19,14 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return repository.findByLogin(username);
+    }
+
+    public User findUserByUsernameOrThrowNotFound(String email) {
+        User userFound = repository.findByLogin(email);
+
+        if(userFound == null) {
+            throw new NotFoundException("User not found");
+        }
+        return userFound;
     }
 }

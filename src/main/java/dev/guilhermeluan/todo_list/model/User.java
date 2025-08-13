@@ -1,13 +1,11 @@
 package dev.guilhermeluan.todo_list.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,11 +18,22 @@ public class User implements UserDetails {
     private String password;
     private UserRole role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Task> tasks = new ArrayList<>();
+
     public User(Long id, String login, String password, UserRole role) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.role = role;
+    }
+
+    public User(Long id, String login, String password, UserRole role, List<Task> tasks) {
+        this.id = id;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.tasks = tasks;
     }
 
     public User() {

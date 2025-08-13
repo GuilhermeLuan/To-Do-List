@@ -38,6 +38,10 @@ public class Task {
     @Column(nullable = false)
     private boolean isSubTask = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @OneToMany(
             mappedBy = "parentTask",
             cascade = CascadeType.ALL,
@@ -131,6 +135,14 @@ public class Task {
 
     public void setIsSubTask(boolean parent) {
         isSubTask = parent;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

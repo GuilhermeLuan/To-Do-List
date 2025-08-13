@@ -1,11 +1,9 @@
 package dev.guilhermeluan.todo_list.controller;
 
 import dev.guilhermeluan.todo_list.dto.*;
-import dev.guilhermeluan.todo_list.model.Priority;
-import dev.guilhermeluan.todo_list.model.Task;
-import dev.guilhermeluan.todo_list.model.TaskMapper;
-import dev.guilhermeluan.todo_list.model.TaskStatus;
+import dev.guilhermeluan.todo_list.model.*;
 import dev.guilhermeluan.todo_list.service.TaskService;
+import dev.guilhermeluan.todo_list.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -32,10 +32,12 @@ import java.time.LocalDate;
 public class TaskController {
     private final TaskService service;
     private final TaskMapper mapper;
+    private final UserService userService;
 
-    public TaskController(TaskService service, TaskMapper mapper) {
+    public TaskController(TaskService service, TaskMapper mapper, UserService userService) {
         this.service = service;
         this.mapper = mapper;
+        this.userService = userService;
     }
 
     @PostMapping
@@ -91,8 +93,12 @@ public class TaskController {
                 )
             )
         )
-        @RequestBody @Valid TaskPostRequest request) {
+        @RequestBody @Valid TaskPostRequest request,
+        @AuthenticationPrincipal UserDetails userDetails) {
         Task taskToSave = mapper.toTask(request);
+        User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+        taskToSave.setUser(user);
+
         Task taskSaved = service.save(taskToSave);
 
         TaskPostResponse response = mapper.toTaskPostResponse(taskSaved);
@@ -154,9 +160,12 @@ public class TaskController {
         )
         @RequestBody @Valid TaskPostRequest request,
         @Parameter(description = "ID da tarefa pai", required = true, example = "1")
-        @PathVariable("parentId") Long parentId) {
+        @PathVariable("parentId") Long parentId,
+        @AuthenticationPrincipal UserDetails userDetails) {
 
         Task subTaskToSave = mapper.toTask(request);
+        User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
+        subTaskToSave.setUser(user);
         Task subTaskSaved = service.createSubTask(parentId, subTaskToSave);
 
         TaskPostResponse response = mapper.toTaskPostResponse(subTaskSaved);

@@ -1,29 +1,58 @@
 <h1 align='center'> Todo List API </h1>
 
 <p align='center'>
-Esta é uma API REST de gerenciamento de tarefas desenvolvida em Spring Boot. O sistema permite criar, listar, atualizar e excluir tarefas, incluindo suporte a subtarefas com validações de negócio específicas.
+Esta é uma API REST de gerenciamento de tarefas desenvolvida em Spring Boot. O sistema permite criar, listar, atualizar e excluir tarefas, incluindo suporte a subtarefas com validações de negócio específicas. A API implementa autenticação JWT para garantir que cada usuário acesse apenas suas próprias tarefas.
 </p>
 
-## 🔧 Ferramentas
+## Ferramentas
 
 - Java 21
-- Spring Boot 3.5.4
-- MySQL 9.0.1
+- Spring Boot 3
+- MySQL
 - Docker
 - MapStruct
 - JUnit 5
 - Maven
+- Spring Security
+- JWT (JSON Web Tokens)
+- Swagger/OpenAPI 3
 
-## 📍 Endpoints
+## Autenticação
 
-- `GET /v1/tasks`: Retorna a lista paginada de todas as tarefas com filtros opcionais.
-- `POST /v1/tasks`: Cria uma nova tarefa.
-- `POST /v1/tasks/{parentId}/subtasks`: Cria uma nova subtarefa vinculada a uma tarefa pai.
-- `PUT /v1/tasks/{id}`: Atualiza as informações de uma tarefa específica.
-- `PATCH /v1/tasks/{id}/status`: Atualiza apenas o status de uma tarefa específica.
-- `DELETE /v1/tasks/{id}`: Exclui uma tarefa específica com base no ID.
+A API utiliza autenticação JWT (JSON Web Token) para proteger os endpoints de tarefas. Todos os endpoints de gerenciamento de tarefas requerem autenticação válida.
 
-## 📄 Modelo de Dados
+### Endpoints de Autenticação:
+- `POST /auth/login`: Realiza login e retorna token JWT
+- `POST /auth/register`: Registra novo usuário no sistema
+
+### Como Usar:
+1. Registre um usuário ou faça login para obter o token JWT
+2. Inclua o token no header `Authorization: Bearer {token}` nas requisições
+3. Cada usuário só pode acessar suas próprias tarefas
+
+## Endpoints
+
+### Autenticação
+- `POST /auth/login`: Autentica usuário e retorna token JWT
+- `POST /auth/register`: Registra novo usuário no sistema
+
+### Tarefas (Requer Autenticação)
+- `GET /v1/tasks`: Retorna a lista paginada de tarefas do usuário autenticado com filtros opcionais
+- `POST /v1/tasks`: Cria uma nova tarefa para o usuário autenticado
+- `POST /v1/tasks/{parentId}/subtasks`: Cria uma nova subtarefa vinculada a uma tarefa pai
+- `PUT /v1/tasks/{id}`: Atualiza as informações de uma tarefa específica (apenas do próprio usuário)
+- `PATCH /v1/tasks/{id}/status`: Atualiza apenas o status de uma tarefa específica (apenas do próprio usuário)
+- `DELETE /v1/tasks/{id}`: Exclui uma tarefa específica com base no ID (apenas do próprio usuário)
+
+## Modelo de Dados
+
+### `User`:
+- `id` (Long, gerado automaticamente): Identificador único do usuário
+- `login` (String, obrigatório): Nome de usuário único
+- `password` (String, obrigatório): Senha criptografada com BCrypt
+- `role` (UserRole, obrigatório): Papel do usuário no sistema
+  - `USER`: Usuário comum
+  - `ADMIN`: Administrador do sistema
 
 ### `Task`:
 - `id` (Long, gerado automaticamente): Identificador único da tarefa
@@ -38,23 +67,30 @@ Esta é uma API REST de gerenciamento de tarefas desenvolvida em Spring Boot. O 
   - `LOW`: Baixa prioridade
   - `MEDIUM`: Média prioridade
   - `HIGH`: Alta prioridade
+- `user` (User, obrigatório): Usuário proprietário da tarefa
 - `parentTask` (Task, opcional): Referência para a tarefa pai (apenas para subtarefas)
 - `isSubTask` (Boolean): Indica se é uma subtarefa
 - `subTasks` (List<Task>): Lista de subtarefas associadas
 
-## ⚙️ Funcionalidades da API
+## Funcionalidades da API
 
 A API oferece:
 
+- **Sistema de autenticação completo**: Login, registro e proteção JWT
+- **Isolamento de dados por usuário**: Cada usuário acessa apenas suas tarefas
+- **Validação de propriedade**: Verificação automática se a tarefa pertence ao usuário
 - **Gerenciamento completo de tarefas**: Criação, listagem, atualização e exclusão
 - **Sistema de subtarefas**: Criação de subtarefas vinculadas a tarefas principais
 - **Validações de negócio**: 
   - Impede aninhamento de subtarefas (subtarefa de subtarefa)
   - Valida conclusão de subtarefas antes de finalizar tarefa principal
+  - Previne acesso a tarefas de outros usuários
 - **Filtros e paginação**: Busca por status, prioridade e data de vencimento
 - **Ordenação**: Suporte a ordenação por diferentes campos
+- **Documentação interativa**: Interface Swagger para testar endpoints
+- **Segurança avançada**: Criptografia de senhas e tokens JWT seguros
 
-## 💻 Pré-requisitos
+## Pré-requisitos
 
 Antes de executar o projeto, certifique-se de ter instalado:
 
@@ -63,7 +99,7 @@ Antes de executar o projeto, certifique-se de ter instalado:
 - **Docker** e **Docker Compose**
 - **Git**
 
-## 🚀 Como Executar o Projeto
+## Como Executar o Projeto
 
 Siga estas etapas para configurar e executar a API em seu ambiente:
 
@@ -82,7 +118,7 @@ cd todo-list/
 ### 3. Inicie o banco de dados MySQL com Docker:
 
 ```shell
-docker compose up -d
+docker compose up
 ```
 
 ### 4. Execute a aplicação:
@@ -100,7 +136,14 @@ mvnw.cmd spring-boot:run
 
 A API estará acessível em **http://localhost:8080/**
 
-## 🧪 Executar Testes
+## Documentação da API
+
+A documentação da API está disponível através do Swagger UI:
+
+- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
+- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+
+## Executar Testes
 
 Para executar todos os testes unitários:
 
@@ -108,12 +151,47 @@ Para executar todos os testes unitários:
 ./mvnw test
 ```
 
-## 🌐 Exemplos de Uso
+## Exemplos de Uso
 
-### Criar uma Nova Tarefa
+### Registrar um Novo Usuário
 
 **Método:** `POST`  
-**URL:** `http://localhost:8080/v1/tasks`
+**URL:** `http://localhost:8080/auth/register`
+
+**Corpo da Solicitação:**
+```json
+{
+  "login": "novoUsuario",
+  "password": "minhasenhasegura123",
+  "role": "USER"
+}
+```
+
+### Fazer Login
+
+**Método:** `POST`  
+**URL:** `http://localhost:8080/auth/login`
+
+**Corpo da Solicitação:**
+```json
+{
+  "login": "novoUsuario",
+  "password": "minhasenhasegura123"
+}
+```
+
+**Resposta:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### Criar uma Nova Tarefa (Autenticado)
+
+**Método:** `POST`  
+**URL:** `http://localhost:8080/v1/tasks`  
+**Headers:** `Authorization: Bearer {seu-token-jwt}`
 
 **Corpo da Solicitação:**
 ```json
@@ -126,10 +204,11 @@ Para executar todos os testes unitários:
 }
 ```
 
-### Criar uma Subtarefa
+### Criar uma Subtarefa (Autenticado)
 
 **Método:** `POST`  
-**URL:** `http://localhost:8080/v1/tasks/1/subtasks`
+**URL:** `http://localhost:8080/v1/tasks/1/subtasks`  
+**Headers:** `Authorization: Bearer {seu-token-jwt}`
 
 **Corpo da Solicitação:**
 ```json
@@ -141,15 +220,17 @@ Para executar todos os testes unitários:
 }
 ```
 
-### Listar Tarefas com Filtros
+### Listar Tarefas com Filtros (Autenticado)
 
 **Método:** `GET`  
-**URL:** `http://localhost:8080/v1/tasks?priority=HIGH&sort=dueDate,asc`
+**URL:** `http://localhost:8080/v1/tasks?priority=HIGH&sort=dueDate`  
+**Headers:** `Authorization: Bearer {seu-token-jwt}`
 
-### Atualizar Status de uma Tarefa
+### Atualizar Status de uma Tarefa (Autenticado)
 
 **Método:** `PATCH`  
-**URL:** `http://localhost:8080/v1/tasks/1/status`
+**URL:** `http://localhost:8080/v1/tasks/1/status`  
+**Headers:** `Authorization: Bearer {seu-token-jwt}`
 
 **Corpo da Solicitação:**
 ```json
@@ -158,10 +239,11 @@ Para executar todos os testes unitários:
 }
 ```
 
-### Atualizar uma Tarefa Completa
+### Atualizar uma Tarefa Completa (Autenticado)
 
 **Método:** `PUT`  
-**URL:** `http://localhost:8080/v1/tasks/1`
+**URL:** `http://localhost:8080/v1/tasks/1`  
+**Headers:** `Authorization: Bearer {seu-token-jwt}`
 
 **Corpo da Solicitação:**
 ```json
@@ -175,11 +257,22 @@ Para executar todos os testes unitários:
 ```
 
 
-## 🔄 Regras de Negócio
+## Regras de Negócio
 
+### Autenticação e Segurança
+1. **Registro**: Não é possível registrar usuários com o mesmo login
+2. **Autenticação**: Todos os endpoints de tarefas requerem token JWT válido
+3. **Isolamento**: Usuários só podem acessar suas próprias tarefas
+4. **Propriedade**: Operações (atualizar, excluir) verificam se a tarefa pertence ao usuário
+
+### Gerenciamento de Tarefas
 1. **Subtarefas**: Não é possível criar subtarefas de outras subtarefas
 2. **Conclusão de Tarefas**: Uma tarefa principal só pode ser marcada como "DONE" se todas suas subtarefas estiverem concluídas
 3. **Validações**: Título é obrigatório, demais campos são opcionais
 4. **Cascata**: Ao excluir uma tarefa principal, todas suas subtarefas também são excluídas
 
+## Segurança
 
+- **Tokens JWT**: Assinados com chave secreta para verificação de integridade
+- **Validação de Propriedade**: Automática em todas as operações de tarefa
+- **Isolamento de Dados**: Usuários não conseguem acessar dados de outros usuários

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("v1/tasks")
+@SecurityRequirement(name = "bearerAuth")
 @Tag(name = "Tarefas", description = "API para gerenciamento de tarefas e subtarefas")
 public class TaskController {
     private final TaskService service;

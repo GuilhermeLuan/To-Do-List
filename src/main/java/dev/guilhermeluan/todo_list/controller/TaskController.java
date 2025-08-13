@@ -51,7 +51,7 @@ public class TaskController {
                     description = "Tarefa criada com sucesso",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = TaskPostResponse.class),
+                            schema = @Schema(implementation = TaskPostResponseDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de resposta",
                                     value = """
@@ -72,13 +72,13 @@ public class TaskController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    public ResponseEntity<TaskPostResponse> create(
+    public ResponseEntity<TaskPostResponseDTO> create(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados da tarefa a ser criada",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = TaskPostRequest.class),
+                            schema = @Schema(implementation = TaskPostRequestDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de requisição",
                                     value = """
@@ -93,7 +93,7 @@ public class TaskController {
                             )
                     )
             )
-            @RequestBody @Valid TaskPostRequest request,
+            @RequestBody @Valid TaskPostRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
         Task taskToSave = mapper.toTask(request);
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
@@ -101,7 +101,7 @@ public class TaskController {
 
         Task taskSaved = service.save(taskToSave);
 
-        TaskPostResponse response = mapper.toTaskPostResponse(taskSaved);
+        TaskPostResponseDTO response = mapper.toTaskPostResponse(taskSaved);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -117,7 +117,7 @@ public class TaskController {
                     description = "Subtarefa criada com sucesso",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = TaskPostResponse.class),
+                            schema = @Schema(implementation = TaskPostResponseDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de resposta",
                                     value = """
@@ -138,13 +138,13 @@ public class TaskController {
             @ApiResponse(responseCode = "404", description = "Tarefa pai não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    public ResponseEntity<TaskPostResponse> createSubTask(
+    public ResponseEntity<TaskPostResponseDTO> createSubTask(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados da subtarefa a ser criada",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = TaskPostRequest.class),
+                            schema = @Schema(implementation = TaskPostRequestDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de requisição",
                                     value = """
@@ -158,7 +158,7 @@ public class TaskController {
                             )
                     )
             )
-            @RequestBody @Valid TaskPostRequest request,
+            @RequestBody @Valid TaskPostRequestDTO request,
             @Parameter(description = "ID da tarefa pai", required = true, example = "1")
             @PathVariable("parentId") Long parentId,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -170,7 +170,7 @@ public class TaskController {
 
         Task subTaskSaved = service.createSubTask(parentId, subTaskToSave, user.getId());
 
-        TaskPostResponse response = mapper.toTaskPostResponse(subTaskSaved);
+        TaskPostResponseDTO response = mapper.toTaskPostResponse(subTaskSaved);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -231,7 +231,7 @@ public class TaskController {
             ),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    public ResponseEntity<Page<TaskGetResponse>> listTasks(
+    public ResponseEntity<Page<TaskGetResponseDTO>> listTasks(
             @Parameter(description = "Filtrar por status da tarefa", example = "TO_DO")
             @RequestParam(required = false) TaskStatus status,
             @Parameter(description = "Filtrar por prioridade da tarefa", example = "HIGH")
@@ -252,7 +252,7 @@ public class TaskController {
 
         Long userId = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername()).getId();
         Page<Task> tasksPage = service.findAll(userId, status, priority, dueDate, pageable);
-        Page<TaskGetResponse> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
+        Page<TaskGetResponseDTO> tasksResponsePage = tasksPage.map(mapper::toTaskResponseDTO);
 
         return ResponseEntity.ok(tasksResponsePage);
     }
@@ -274,7 +274,7 @@ public class TaskController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UpdateTaskStatusRequest.class),
+                            schema = @Schema(implementation = UpdateTaskStatusRequestDTO.class),
                             examples = {
                                     @ExampleObject(
                                             name = "Marcar como em progresso",
@@ -295,7 +295,7 @@ public class TaskController {
                             }
                     )
             )
-            @RequestBody @Valid UpdateTaskStatusRequest request,
+            @RequestBody @Valid UpdateTaskStatusRequestDTO request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -324,7 +324,7 @@ public class TaskController {
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = TaskPutRequest.class),
+                            schema = @Schema(implementation = TaskPutRequestDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de atualização",
                                     value = """
@@ -339,7 +339,7 @@ public class TaskController {
                             )
                     )
             )
-            @RequestBody @Valid TaskPutRequest request,
+            @RequestBody @Valid TaskPutRequestDTO request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {

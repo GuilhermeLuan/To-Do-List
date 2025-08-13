@@ -65,8 +65,6 @@ class TaskControllerTest {
     void setUp() {
         tasks = taskUtils.newTaskListWithSubTasks();
 
-
-
         testUser = userUtils.newUserTest();
 
         BDDMockito.when(tokenService.validateToken(ArgumentMatchers.anyString()))

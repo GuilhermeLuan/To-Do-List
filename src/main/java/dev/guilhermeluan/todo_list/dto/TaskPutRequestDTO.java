@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 
 import java.time.ZonedDateTime;
 
-public record TaskPostRequest(
+public record TaskPutRequestDTO(
         @NotBlank(message = "O campo 'title' é obrigatório.")
         @Size(min = 3, max = 255, message = "O título deve ter entre 3 e 255 caracteres.")
         String title,
@@ -21,6 +21,5 @@ public record TaskPostRequest(
 
         TaskStatus status,
 
-        Priority priority
-) {
+        Priority priority) {
 }

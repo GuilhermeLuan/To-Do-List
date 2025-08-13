@@ -7,17 +7,17 @@ import org.mapstruct.MappingConstants;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TaskMapper {
-    Task toTask(TaskPostRequest request);
+    Task toTask(TaskPostRequestDTO request);
 
-    Task toTask(UpdateTaskStatusRequest request);
+    Task toTask(UpdateTaskStatusRequestDTO request);
 
-    Task toTask(TaskPutRequest request);
+    Task toTask(TaskPutRequestDTO request);
 
-    TaskPostResponse toTaskPostResponse(Task taskSaved);
+    TaskPostResponseDTO toTaskPostResponse(Task taskSaved);
 
     @Mapping(target = "parentTaskId", source = "parentTask.id")
     @Mapping(target = "subtasks", source = "subTasks")
-    TaskGetResponse toTaskResponseDTO(Task task);
+    TaskGetResponseDTO toTaskResponseDTO(Task task);
 
-    TaskPutRequest toTaskPutRequest(Task task);
+    TaskPutRequestDTO toTaskPutRequest(Task task);
 }

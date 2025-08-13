@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record TaskGetResponse(
+public record TaskGetResponseDTO(
         Long id,
         String title,
         String description,

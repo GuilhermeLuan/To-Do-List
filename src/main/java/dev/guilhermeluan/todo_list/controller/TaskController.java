@@ -134,8 +134,9 @@ public class TaskController {
                             )
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "Tentativa de criar subtarefa de uma subtarefa ou dados inválidos"),
-            @ApiResponse(responseCode = "404", description = "Tarefa pai não encontrada"),
+            @ApiResponse(responseCode = "400", description = "Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal"),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada com o id: 44"),
+            @ApiResponse(responseCode = "403", description = "A tarefa não pertence ao usuário autenticado."),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     public ResponseEntity<TaskPostResponseDTO> createSubTask(
@@ -264,8 +265,9 @@ public class TaskController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Status atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Tentativa de finalizar tarefa com subtarefas pendentes"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada"),
+            @ApiResponse(responseCode = "400", description = "Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal."),
+            @ApiResponse(responseCode = "403", description = "A tarefa não pertence ao usuário autenticado."),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada com o id: x"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     public ResponseEntity<Void> updateStatus(
@@ -314,8 +316,10 @@ public class TaskController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Tarefa atualizada com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos"),
+            @ApiResponse(responseCode = "400", description = "Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal."),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada com o id: x"),
+            @ApiResponse(responseCode = "403", description = "A tarefa não pertence ao usuário autenticado."),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     public ResponseEntity<Void> updateTask(
@@ -360,7 +364,8 @@ public class TaskController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Tarefa excluída com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada"),
+            @ApiResponse(responseCode = "403", description = "A tarefa não pertence ao usuário autenticado."),
+            @ApiResponse(responseCode = "404", description = "Tarefa não encontrada com o id: x"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     public ResponseEntity<Void> delete(

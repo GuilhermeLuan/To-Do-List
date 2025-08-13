@@ -1,11 +1,15 @@
 package dev.guilhermeluan.todo_list.service;
 
 import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
+import dev.guilhermeluan.todo_list.exceptions.ForbiddenException;
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
+import dev.guilhermeluan.todo_list.model.User;
+import dev.guilhermeluan.todo_list.model.UserRole;
 import dev.guilhermeluan.todo_list.repository.TaskRepository;
 import dev.guilhermeluan.todo_list.utils.TaskUtils;
+import dev.guilhermeluan.todo_list.utils.UserUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,15 +28,21 @@ import java.util.Optional;
 class TaskServiceTest {
     @InjectMocks
     private TaskService taskService;
-    private TaskUtils taskUtils = new TaskUtils();
+    private final TaskUtils taskUtils = new TaskUtils();
+    private UserUtils userUtils = new UserUtils();
     @Mock
     private TaskRepository taskRepository;
+    @Mock
+    private UserService userService;
 
     private List<Task> tasks;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
         tasks = taskUtils.newTaskListWithSubTasks();
+        testUser = userUtils.newUserTest();
+        tasks.forEach(task -> task.setUser(testUser));
     }
 
     @Test
@@ -88,7 +98,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTask));
         BDDMockito.when(taskRepository.save(subTaskToCreate)).thenReturn(subTaskToCreate);
 
-        var subTaskCreated = taskService.createSubTask( parentTaskId, subTaskToCreate, 1L);
+        var subTaskCreated = taskService.createSubTask( parentTaskId, subTaskToCreate, testUser.getId());
 
         Assertions.assertThat(subTaskCreated).isEqualTo(subTaskToCreate);
         Assertions.assertThat(subTaskCreated.getParentTask()).isEqualTo(parentTask);
@@ -113,7 +123,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTask));
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.createSubTask(parentTaskId, subTaskToCreate, 1L)
+                () -> taskService.createSubTask(parentTaskId, subTaskToCreate, testUser.getId())
         ).isInstanceOf(BadRequestException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTaskId);
@@ -131,7 +141,7 @@ class TaskServiceTest {
         BDDMockito.doNothing().when(taskRepository).deleteById(taskToDelete.getId());
 
         Assertions.assertThatNoException().isThrownBy(
-                () -> taskService.delete(taskToDelete.getId())
+                () -> taskService.delete(taskToDelete.getId(), testUser.getId())
         );
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(taskToDelete.getId());
@@ -149,7 +159,7 @@ class TaskServiceTest {
 
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.delete(taskToDelete.getId())
+                () -> taskService.delete(taskToDelete.getId(), testUser.getId())
         ).isInstanceOf(NotFoundException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(taskToDelete.getId());
@@ -161,6 +171,7 @@ class TaskServiceTest {
     @DisplayName("updateStatus updates task status when successful")
     void updateStatus_UpdatesTaskStatus_WhenSuccessful() {
         var taskToUpdate = taskUtils.newSavedTask();
+        taskToUpdate.setUser(testUser);
         taskToUpdate.setStatus(TaskStatus.TO_DO);
         var newStatus = TaskStatus.DONE;
         var taskId = taskToUpdate.getId();
@@ -169,7 +180,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(taskId)).thenReturn(Optional.of(taskToUpdate));
         BDDMockito.when(taskRepository.save(taskToUpdate)).thenReturn(taskToUpdate);
 
-        var taskUpdated = taskService.updateStatus(newStatus, taskId);
+        var taskUpdated = taskService.updateStatus(newStatus, taskId, testUser.getId());
 
 
         Assertions.assertThat(taskUpdated.getStatus()).isEqualTo(newStatus);
@@ -196,7 +207,7 @@ class TaskServiceTest {
         BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTaskToUpdate));
         BDDMockito.when(taskRepository.save(parentTaskToUpdate)).thenReturn(parentTaskToUpdate);
 
-        var parentTaskUpdated = taskService.updateStatus(newStatus, parentTaskId);
+        var parentTaskUpdated = taskService.updateStatus(newStatus, parentTaskId, testUser.getId());
 
         Assertions.assertThat(parentTaskUpdated.getStatus()).isEqualTo(newStatus);
         Mockito.verify(taskRepository, Mockito.times(1)).save(parentTaskToUpdate);
@@ -214,7 +225,7 @@ class TaskServiceTest {
 
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.updateStatus(newStatus, taskToUpdate.getId())
+                () -> taskService.updateStatus(newStatus, taskToUpdate.getId(), testUser.getId())
         ).isInstanceOf(NotFoundException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(taskToUpdate.getId());
@@ -244,7 +255,7 @@ class TaskServiceTest {
 
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.updateStatus(newStatus, parentTask.getId())
+                () -> taskService.updateStatus(newStatus, parentTask.getId(), testUser.getId())
         ).isInstanceOf(BadRequestException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTask.getId());
@@ -255,18 +266,20 @@ class TaskServiceTest {
     @DisplayName("update updates a task when successful")
     void update_UpdatesTask_WhenSuccessful() {
         var taskToUpdate = taskUtils.newSavedTask();
+        taskToUpdate.setUser(testUser);
         taskToUpdate.setTitle("Updated Title");
         taskToUpdate.setDescription("Updated Description");
         var taskId = taskToUpdate.getId();
 
         var existingTask = taskUtils.newSavedTask();
         existingTask.setId(taskId);
+        existingTask.setUser(testUser);
 
         BDDMockito.when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
         BDDMockito.when(taskRepository.save(taskToUpdate)).thenReturn(taskToUpdate);
 
         Assertions.assertThatNoException().isThrownBy(
-                () -> taskService.update(taskToUpdate)
+                () -> taskService.update(taskToUpdate, testUser.getId())
         );
 
         Assertions.assertThat(taskToUpdate.getSubTasks()).isEqualTo(existingTask.getSubTasks());
@@ -284,11 +297,49 @@ class TaskServiceTest {
                 .thenThrow(NotFoundException.class);
 
         Assertions.assertThatException().isThrownBy(
-                () -> taskService.update(taskToUpdate)
+                () -> taskService.update(taskToUpdate, testUser.getId())
         ).isInstanceOf(NotFoundException.class);
 
         Mockito.verify(taskRepository, Mockito.times(1)).findById(taskId);
         Mockito.verify(taskRepository, Mockito.times(0)).save(taskToUpdate);
     }
 
+    @Test
+    @DisplayName("delete throws ForbiddenException when user does not own the task")
+    void delete_ThrowsForbiddenException_WhenUserDoesNotOwnTask() {
+        var taskToDelete = tasks.get(0);
+        var differentUser = new User(2L, "otheruser", "password", UserRole.USER);
+        taskToDelete.setUser(differentUser);
+
+        BDDMockito.when(taskRepository.findById(taskToDelete.getId()))
+                .thenReturn(Optional.of(taskToDelete));
+
+        Assertions.assertThatException().isThrownBy(
+                () -> taskService.delete(taskToDelete.getId(), testUser.getId())
+        ).isInstanceOf(ForbiddenException.class);
+
+        Mockito.verify(taskRepository, Mockito.times(1)).findById(taskToDelete.getId());
+        Mockito.verify(taskRepository, Mockito.times(0)).deleteById(taskToDelete.getId());
+    }
+
+    @Test
+    @DisplayName("createSubTask throws ForbiddenException when user does not own parent task")
+    void createSubTask_ThrowsForbiddenException_WhenUserDoesNotOwnParentTask() {
+        var parentTask = tasks.get(0);
+        var differentUser = new User(2L, "otheruser", "password", UserRole.USER);
+        parentTask.setUser(differentUser);
+
+        var parentTaskId = parentTask.getId();
+        var subTaskToCreate = tasks.get(1);
+
+        BDDMockito.when(taskRepository.findById(parentTaskId)).thenReturn(Optional.of(parentTask));
+
+        Assertions.assertThatException().isThrownBy(
+                () -> taskService.createSubTask(parentTaskId, subTaskToCreate, testUser.getId())
+        ).isInstanceOf(ForbiddenException.class);
+
+        Mockito.verify(taskRepository, Mockito.times(1)).findById(parentTaskId);
+        Mockito.verify(taskRepository, Mockito.times(0)).save(subTaskToCreate);
+    }
 }
+

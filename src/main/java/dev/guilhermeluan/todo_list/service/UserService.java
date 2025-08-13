@@ -21,8 +21,8 @@ public class UserService implements UserDetailsService {
         return repository.findByLogin(username);
     }
 
-    public User findUserByUsernameOrThrowNotFound(String email) {
-        User userFound = repository.findByLogin(email);
+    public User findUserByUsernameOrThrowNotFound(String username) {
+        User userFound = repository.findByLogin(username);
 
         if (userFound == null) {
             throw new NotFoundException("User not found");

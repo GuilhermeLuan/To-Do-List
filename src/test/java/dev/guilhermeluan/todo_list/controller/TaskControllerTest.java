@@ -9,8 +9,10 @@ import dev.guilhermeluan.todo_list.model.User;
 import dev.guilhermeluan.todo_list.model.UserRole;
 import dev.guilhermeluan.todo_list.repository.UserRepository;
 import dev.guilhermeluan.todo_list.service.TaskService;
+import dev.guilhermeluan.todo_list.service.UserService;
 import dev.guilhermeluan.todo_list.utils.FileUtils;
 import dev.guilhermeluan.todo_list.utils.TaskUtils;
+import dev.guilhermeluan.todo_list.utils.UserUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,23 +51,35 @@ class TaskControllerTest {
     private TaskUtils taskUtils;
     @Autowired
     private FileUtils fileUtils;
+    @Autowired
+    private UserUtils userUtils;
     @MockitoBean
     private UserRepository userRepository;
+    @MockitoBean
+    private UserService userService;
+
+    private User testUser;
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tasks = taskUtils.newTaskListWithSubTasks();
 
-        BDDMockito.when(tokenService.validateToken(ArgumentMatchers.anyString()))
-                .thenReturn("testuser");
 
-        BDDMockito.when(userRepository.findByLogin("testuser"))
-                .thenReturn(new User(
-                        "testuser",
-                        "password",
-                        UserRole.USER
-                ));
+
+        testUser = userUtils.newUserTest();
+
+        BDDMockito.when(tokenService.validateToken(ArgumentMatchers.anyString()))
+                .thenReturn(testUser.getUsername());
+
+        BDDMockito.when(userRepository.findByLogin(testUser.getUsername()))
+                .thenReturn(testUser);
+
+        BDDMockito.when(userService.findUserByUsernameOrThrowNotFound(testUser.getUsername()))
+                .thenReturn(testUser);
+
+        BDDMockito.when(userService.findUserByIdOrThrowNotFound(ArgumentMatchers.anyLong()))
+                .thenReturn(testUser);
     }
 
     private RequestPostProcessor bearerToken() {
@@ -228,7 +242,7 @@ class TaskControllerTest {
         var taskToUpdate = taskUtils.newSavedTask();
         taskToUpdate.setStatus(TaskStatus.IN_PROGRESS);
 
-        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.IN_PROGRESS), ArgumentMatchers.eq(taskId)))
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.IN_PROGRESS), ArgumentMatchers.eq(taskId), ArgumentMatchers.anyLong()))
                 .thenReturn(taskToUpdate);
 
         var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
@@ -247,7 +261,7 @@ class TaskControllerTest {
     void updateStatus_ThrowsNotFoundException_WhenTaskDoesNotExist() throws Exception {
         var nonExistentTaskId = 99L;
 
-        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.any(TaskStatus.class), ArgumentMatchers.eq(nonExistentTaskId)))
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.any(TaskStatus.class), ArgumentMatchers.eq(nonExistentTaskId), ArgumentMatchers.anyLong()))
                 .thenThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId));
 
         var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
@@ -266,7 +280,7 @@ class TaskControllerTest {
     void updateStatus_ThrowsBadRequestException_WhenParentTaskHasIncompleteSubTasks() throws Exception {
         var taskId = 1L;
 
-        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.DONE), ArgumentMatchers.eq(taskId)))
+        BDDMockito.when(taskService.updateStatus(ArgumentMatchers.eq(TaskStatus.DONE), ArgumentMatchers.eq(taskId), ArgumentMatchers.anyLong()))
                 .thenThrow(new BadRequestException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal."));
 
         var request = fileUtils.readResourceFile("task/patch-request-status-done-200.json");
@@ -285,7 +299,7 @@ class TaskControllerTest {
     void update_UpdatesTask_WhenIsSuccessful() throws Exception {
         var taskId = 1L;
 
-        BDDMockito.doNothing().when(taskService).update(ArgumentMatchers.any());
+        BDDMockito.doNothing().when(taskService).update(ArgumentMatchers.any(), ArgumentMatchers.anyLong());
 
         var request = fileUtils.readResourceFile("task/put-request-task-200.json");
 
@@ -304,7 +318,7 @@ class TaskControllerTest {
         var nonExistentTaskId = 99L;
 
         BDDMockito.doThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId))
-                .when(taskService).update(ArgumentMatchers.any());
+                .when(taskService).update(ArgumentMatchers.any(), ArgumentMatchers.anyLong());
 
         var request = fileUtils.readResourceFile("task/put-request-task-200.json");
 
@@ -322,7 +336,8 @@ class TaskControllerTest {
     void delete_DeletesTask_WhenIsSuccessful() throws Exception {
         var taskId = tasks.getFirst().getId();
 
-        BDDMockito.doNothing().when(taskService).delete(taskId);
+
+        BDDMockito.doNothing().when(taskService).delete(taskId, testUser.getId());
 
         mockMvc.perform(delete(URL + "/" + taskId)
                         .with(bearerToken()))
@@ -336,7 +351,7 @@ class TaskControllerTest {
         var nonExistentTaskId = 99L;
 
         BDDMockito.doThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId))
-                .when(taskService).delete(nonExistentTaskId);
+                .when(taskService).delete(nonExistentTaskId, testUser.getId());
 
         mockMvc.perform(delete(URL + "/" + nonExistentTaskId)
                         .with(bearerToken()))

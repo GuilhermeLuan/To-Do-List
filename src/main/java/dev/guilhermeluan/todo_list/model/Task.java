@@ -46,7 +46,7 @@ public class Task {
             mappedBy = "parentTask",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.EAGER // Alterado para EAGER
+            fetch = FetchType.EAGER
     )
     private List<Task> subTasks = new ArrayList<>();
 

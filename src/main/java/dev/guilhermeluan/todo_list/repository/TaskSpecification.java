@@ -8,8 +8,16 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 
 public class TaskSpecification {
+
+    private TaskSpecification() {
+    }
+
     public static Specification<Task> isTopLevelTask() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isFalse(root.get("isSubTask"));
+    }
+
+    public static Specification<Task> hasUserId(Long userId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("id"), userId);
     }
 
     public static Specification<Task> hasStatus(TaskStatus status) {
@@ -25,9 +33,12 @@ public class TaskSpecification {
                 criteriaBuilder.between(root.get("dueDate"), dueDate.atStartOfDay(), dueDate.atTime(23, 59, 59));
     }
 
-    public static Specification<Task> buildFilterSpec(TaskStatus status, Priority priority, LocalDate dueDate) {
+    public static Specification<Task> buildFilterSpec(Long userId, TaskStatus status, Priority priority, LocalDate dueDate) {
         Specification<Task> spec = isTopLevelTask();
 
+        if (userId != null) {
+            spec = spec.and(hasUserId(userId));
+        }
         if (status != null) {
             spec = spec.and(hasStatus(status));
         }

@@ -22,8 +22,8 @@ public class TaskService {
         this.repository = repository;
     }
 
-    public Page<Task> findAll(TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
-        Specification<Task> spec = TaskSpecification.buildFilterSpec(status, priority, dueDate);
+    public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
+        Specification<Task> spec = TaskSpecification.buildFilterSpec(userId, status, priority, dueDate);
         return repository.findAll(spec, pageable);
     }
 

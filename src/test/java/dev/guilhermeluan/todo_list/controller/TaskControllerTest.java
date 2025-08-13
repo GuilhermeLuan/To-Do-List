@@ -165,7 +165,9 @@ class TaskControllerTest {
                 1
         );
 
-        BDDMockito.when(taskService.findAll(ArgumentMatchers.any(),
+        BDDMockito.when(taskService.findAll(
+                ArgumentMatchers.any(),
+                ArgumentMatchers.any(),
                 ArgumentMatchers.any(),
                 ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(tasksPage);
 
@@ -196,6 +198,7 @@ class TaskControllerTest {
         );
 
         BDDMockito.when(taskService.findAll(
+                        ArgumentMatchers.any(),
                         ArgumentMatchers.eq(TaskStatus.TO_DO),
                         ArgumentMatchers.any(),
                         ArgumentMatchers.any(),

@@ -2,8 +2,12 @@ package dev.guilhermeluan.todo_list.controller;
 
 import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
+import dev.guilhermeluan.todo_list.infra.security.TokenService;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
+import dev.guilhermeluan.todo_list.model.User;
+import dev.guilhermeluan.todo_list.model.UserRole;
+import dev.guilhermeluan.todo_list.repository.UserRepository;
 import dev.guilhermeluan.todo_list.service.TaskService;
 import dev.guilhermeluan.todo_list.utils.FileUtils;
 import dev.guilhermeluan.todo_list.utils.TaskUtils;
@@ -22,14 +26,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -42,14 +43,36 @@ class TaskControllerTest {
     private List<Task> tasks;
     @MockitoBean
     private TaskService taskService;
+    @MockitoBean
+    private TokenService tokenService;
     @Autowired
     private TaskUtils taskUtils;
     @Autowired
     private FileUtils fileUtils;
+    @MockitoBean
+    private UserRepository userRepository;
+
 
     @BeforeEach
     public void setUp() {
         tasks = taskUtils.newTaskListWithSubTasks();
+
+        BDDMockito.when(tokenService.validateToken(ArgumentMatchers.anyString()))
+                .thenReturn("testuser");
+
+        BDDMockito.when(userRepository.findByLogin("testuser"))
+                .thenReturn(new User(
+                        "testuser",
+                        "password",
+                        UserRole.USER
+                ));
+    }
+
+    private RequestPostProcessor bearerToken() {
+        return request -> {
+            request.addHeader("Authorization", "Bearer faketoken");
+            return request;
+        };
     }
 
     @Test
@@ -61,6 +84,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/post-request-task-200.json");
 
         mockMvc.perform(post(URL)
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -84,6 +108,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
 
         mockMvc.perform(post(URL + "/" + parentTaskId + "/subtasks")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -103,6 +128,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
 
         mockMvc.perform(post(URL + "/" + nonExistentParentId + "/subtasks")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -121,6 +147,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/post-request-subtask-200.json");
 
         mockMvc.perform(post(URL + "/" + subTaskId + "/subtasks")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -143,6 +170,7 @@ class TaskControllerTest {
                 ArgumentMatchers.any(), ArgumentMatchers.any(Pageable.class))).thenReturn(tasksPage);
 
         mockMvc.perform(get(URL)
+                        .with(bearerToken())
                         .param("page", "0")
                         .param("size", "10")
                         .param("sort", "title,asc"))
@@ -175,6 +203,7 @@ class TaskControllerTest {
                 .thenReturn(tasksPage);
 
         mockMvc.perform(get(URL)
+                        .with(bearerToken())
                         .param("status", "TO_DO")
                         .param("page", "0")
                         .param("size", "5")
@@ -202,6 +231,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
 
         mockMvc.perform(patch(URL + "/" + taskId + "/status")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -220,6 +250,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/patch-request-status-200.json");
 
         mockMvc.perform(patch(URL + "/" + nonExistentTaskId + "/status")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -238,6 +269,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/patch-request-status-done-200.json");
 
         mockMvc.perform(patch(URL + "/" + taskId + "/status")
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -255,6 +287,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/put-request-task-200.json");
 
         mockMvc.perform(put(URL + "/" + taskId)
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -273,6 +306,7 @@ class TaskControllerTest {
         var request = fileUtils.readResourceFile("task/put-request-task-200.json");
 
         mockMvc.perform(put(URL + "/" + nonExistentTaskId)
+                        .with(bearerToken())
                         .content(request)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -287,7 +321,8 @@ class TaskControllerTest {
 
         BDDMockito.doNothing().when(taskService).delete(taskId);
 
-        mockMvc.perform(delete(URL + "/" + taskId))
+        mockMvc.perform(delete(URL + "/" + taskId)
+                        .with(bearerToken()))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -300,7 +335,8 @@ class TaskControllerTest {
         BDDMockito.doThrow(new NotFoundException("Tarefa não encontrada com o id: " + nonExistentTaskId))
                 .when(taskService).delete(nonExistentTaskId);
 
-        mockMvc.perform(delete(URL + "/" + nonExistentTaskId))
+        mockMvc.perform(delete(URL + "/" + nonExistentTaskId)
+                        .with(bearerToken()))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

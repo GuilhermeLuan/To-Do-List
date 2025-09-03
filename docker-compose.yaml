@@ -1,14 +1,12 @@
 services:
-  mysql:
-    image: mysql:9.0.1
-    environment:
-      MYSQL_ROOT_PASSWORD: admin
-      MYSQL_USER: tarefa
-      MYSQL_PASSWORD: admin
+  mongodb:
+    container_name: mongodb-todo
+    image: mongo
     ports:
-      - "3306:3306"
+      - '27017:27017'
     volumes:
-      - lista-tarefa-db:/var/lib/mysql
-
+      - mongodb:/data/db
+    environment:
+      - NAME=todo-mongodb
 volumes:
-  lista-tarefa-db:
+  mongodb:

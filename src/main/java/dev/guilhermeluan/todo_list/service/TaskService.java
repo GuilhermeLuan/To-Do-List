@@ -30,8 +30,13 @@ public class TaskService {
     }
 
     public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
+        // TO-DO: Implementar buscar das tarefas associadas ao userId
+        //  e aplicar os filtros opcionais (status, priority, dueDate)
+        // Atualmente está retornando todas as tarefas sem filtro.
+
         Specification<Task> spec = TaskSpecification.buildFilterSpec(userId, status, priority, dueDate);
-        return repository.findAll(spec, pageable);
+        return mongoDBRepository.findAll(pageable);
+        // return repository.findAll(spec, pageable);
     }
 
     public Task findByIdOrThrowNotFound(String id) {
@@ -56,7 +61,7 @@ public class TaskService {
         taskToUpdate.setUser(user);
         taskToUpdate.setSubTasks(taskFound.getSubTasks());
 
-        repository.save(taskToUpdate);
+        mongoDBRepository.save(taskToUpdate);
     }
 
     public Task createSubTask(String parentId, Task subTask, Long userId) {
@@ -71,7 +76,7 @@ public class TaskService {
         subTask.setParentTask(parentTask);
         subTask.setIsSubTask(true);
         parentTask.getSubTasks().add(subTask);
-        return repository.save(subTask);
+        return mongoDBRepository.save(subTask);
     }
 
     public void delete(String id, Long userId) {

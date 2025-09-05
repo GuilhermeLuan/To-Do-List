@@ -1,6 +1,6 @@
 package dev.guilhermeluan.todo_list.infra.security;
 
-import dev.guilhermeluan.todo_list.repository.UserRepository;
+import dev.guilhermeluan.todo_list.repository.jpa.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

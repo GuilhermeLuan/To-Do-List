@@ -7,8 +7,9 @@ import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.model.User;
-import dev.guilhermeluan.todo_list.repository.TaskRepository;
-import dev.guilhermeluan.todo_list.repository.TaskSpecification;
+import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
+import dev.guilhermeluan.todo_list.repository.jpa.TaskRepository;
+import dev.guilhermeluan.todo_list.repository.jpa.TaskSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,10 +20,12 @@ import java.time.LocalDate;
 @Service
 public class TaskService {
     private final TaskRepository repository;
+    private final MongoDBTaskRepository mongoDBRepository;
     private final UserService userService;
 
-    public TaskService(TaskRepository repository, UserService userService) {
+    public TaskService(TaskRepository repository, MongoDBTaskRepository mongoDBRepository, UserService userService) {
         this.repository = repository;
+        this.mongoDBRepository = mongoDBRepository;
         this.userService = userService;
     }
 
@@ -31,13 +34,13 @@ public class TaskService {
         return repository.findAll(spec, pageable);
     }
 
-    public Task findByIdOrThrowNotFound(Long id) {
-        return repository.findById(id)
+    public Task findByIdOrThrowNotFound(String id) {
+        return mongoDBRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
     }
 
     public Task save(Task task) {
-        return repository.save(task);
+        return mongoDBRepository.save(task);
     }
 
     public void update(Task taskToUpdate, Long userId) {
@@ -56,7 +59,7 @@ public class TaskService {
         repository.save(taskToUpdate);
     }
 
-    public Task createSubTask(Long parentId, Task subTask, Long userId) {
+    public Task createSubTask(String parentId, Task subTask, Long userId) {
         Task parentTask = findByIdOrThrowNotFound(parentId);
 
         validateTaskOwnership(parentTask, userId);
@@ -71,17 +74,17 @@ public class TaskService {
         return repository.save(subTask);
     }
 
-    public void delete(Long id, Long userId) {
+    public void delete(String id, Long userId) {
         Task task = findByIdOrThrowNotFound(id);
         validateTaskOwnership(task, userId);
-        repository.deleteById(id);
+        mongoDBRepository.deleteById(id);
     }
 
-    public void assertTaskExists(Long id) {
+    public void assertTaskExists(String id) {
         findByIdOrThrowNotFound(id);
     }
 
-    public Task updateStatus(TaskStatus newStatus, Long id, Long userId) {
+    public Task updateStatus(TaskStatus newStatus, String id, Long userId) {
         Task existingTask = findByIdOrThrowNotFound(id);
         User user = userService.findUserByIdOrThrowNotFound(userId);
 

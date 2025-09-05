@@ -2,7 +2,7 @@ package dev.guilhermeluan.todo_list.service;
 
 import dev.guilhermeluan.todo_list.exceptions.NotFoundException;
 import dev.guilhermeluan.todo_list.model.User;
-import dev.guilhermeluan.todo_list.repository.UserRepository;
+import dev.guilhermeluan.todo_list.repository.jpa.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

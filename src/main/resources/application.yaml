@@ -5,6 +5,11 @@ spring:
     url: jdbc:mysql://localhost:3306/lista_tarefa?userTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
     password: admin
+  data:
+      mongodb:
+        database: test
+        host: localhost
+        port: 27017
   jpa:
     show-sql: true
     hibernate:

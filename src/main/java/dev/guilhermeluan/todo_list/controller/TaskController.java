@@ -163,7 +163,7 @@ public class TaskController {
             )
             @RequestBody @Valid TaskPostRequestDTO request,
             @Parameter(description = "ID da tarefa pai", required = true, example = "1")
-            @PathVariable("parentId") Long parentId,
+            @PathVariable("parentId") String parentId,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         Task subTaskToSave = mapper.toTask(request);
@@ -301,7 +301,7 @@ public class TaskController {
             )
             @RequestBody @Valid UpdateTaskStatusRequestDTO request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
 
@@ -347,7 +347,7 @@ public class TaskController {
             )
             @RequestBody @Valid TaskPutRequestDTO request,
             @Parameter(description = "ID da tarefa", required = true, example = "1")
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
 
@@ -372,7 +372,7 @@ public class TaskController {
     })
     public ResponseEntity<Void> delete(
             @Parameter(description = "ID da tarefa a ser excluída", required = true, example = "1")
-            @PathVariable Long id,
+            @PathVariable String id,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());

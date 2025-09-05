@@ -6,7 +6,7 @@ import dev.guilhermeluan.todo_list.dto.RegisterDTO;
 import dev.guilhermeluan.todo_list.exceptions.BadRequestException;
 import dev.guilhermeluan.todo_list.infra.security.TokenService;
 import dev.guilhermeluan.todo_list.model.User;
-import dev.guilhermeluan.todo_list.repository.UserRepository;
+import dev.guilhermeluan.todo_list.repository.jpa.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

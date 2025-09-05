@@ -1,4 +1,4 @@
-package dev.guilhermeluan.todo_list.repository;
+package dev.guilhermeluan.todo_list.repository.jpa;
 
 import dev.guilhermeluan.todo_list.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

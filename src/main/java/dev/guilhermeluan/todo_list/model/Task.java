@@ -1,6 +1,7 @@
 package dev.guilhermeluan.todo_list.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -8,27 +9,20 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Document("tasks")
 public class Task {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(unique = false, nullable = false)
     private String title;
 
-    @Column(nullable = true)
     private String description;
 
-    @Column(nullable = true)
     private ZonedDateTime dueDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
     private TaskStatus status;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
     private Priority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,7 +44,7 @@ public class Task {
     )
     private List<Task> subTasks = new ArrayList<>();
 
-    public Task(Long id, String title, String description, ZonedDateTime dueDate, TaskStatus status, Priority priority, Task parentTask, boolean isParent, List<Task> subTasks) {
+    public Task(String id, String title, String description, ZonedDateTime dueDate, TaskStatus status, Priority priority, Task parentTask, boolean isSubTask, User user, List<Task> subTasks) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -58,18 +52,19 @@ public class Task {
         this.status = status;
         this.priority = priority;
         this.parentTask = parentTask;
-        this.isSubTask = isParent;
+        this.isSubTask = isSubTask;
+        this.user = user;
         this.subTasks = subTasks;
     }
 
     public Task() {
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
+
 @Document("tasks")
 public class Task {
 
@@ -28,23 +28,12 @@ public class Task {
 
     private Priority priority;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_task_id")
-    private Task parentTask;
-
-    @Column(nullable = false)
     private boolean isSubTask = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(
-            mappedBy = "parentTask",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.EAGER
-    )
     private List<Task> subTasks = new ArrayList<>();
 
     public Task(String id, String title, String description, ZonedDateTime dueDate, TaskStatus status, Priority priority, Task parentTask, boolean isSubTask, User user, List<Task> subTasks) {
@@ -54,7 +43,6 @@ public class Task {
         this.dueDate = dueDate;
         this.status = status;
         this.priority = priority;
-        this.parentTask = parentTask;
         this.isSubTask = isSubTask;
         this.user = user;
         this.subTasks = subTasks;
@@ -111,14 +99,6 @@ public class Task {
         this.priority = priority;
     }
 
-    public Task getParentTask() {
-        return parentTask;
-    }
-
-    public void setParentTask(Task parentTask) {
-        this.parentTask = parentTask;
-    }
-
     public List<Task> getSubTasks() {
         return subTasks;
     }
@@ -147,7 +127,7 @@ public class Task {
     public final boolean equals(Object o) {
         if (!(o instanceof Task task)) return false;
 
-        return isSubTask() == task.isSubTask() && Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle()) && Objects.equals(getDescription(), task.getDescription()) && Objects.equals(getDueDate(), task.getDueDate()) && getStatus() == task.getStatus() && getPriority() == task.getPriority() && Objects.equals(getParentTask(), task.getParentTask()) && Objects.equals(getSubTasks(), task.getSubTasks());
+        return isSubTask() == task.isSubTask() && Objects.equals(getId(), task.getId()) && Objects.equals(getTitle(), task.getTitle()) && Objects.equals(getDescription(), task.getDescription()) && Objects.equals(getDueDate(), task.getDueDate()) && getStatus() == task.getStatus() && getPriority() == task.getPriority() && Objects.equals(getUser(), task.getUser()) && Objects.equals(getSubTasks(), task.getSubTasks());
     }
 
     @Override
@@ -158,8 +138,8 @@ public class Task {
         result = 31 * result + Objects.hashCode(getDueDate());
         result = 31 * result + Objects.hashCode(getStatus());
         result = 31 * result + Objects.hashCode(getPriority());
-        result = 31 * result + Objects.hashCode(getParentTask());
         result = 31 * result + Boolean.hashCode(isSubTask());
+        result = 31 * result + Objects.hashCode(getUser());
         result = 31 * result + Objects.hashCode(getSubTasks());
         return result;
     }

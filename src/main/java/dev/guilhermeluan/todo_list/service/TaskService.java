@@ -7,7 +7,6 @@ import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.model.User;
-import dev.guilhermeluan.todo_list.repository.jpa.TaskRepository;
 import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
 import dev.guilhermeluan.todo_list.repository.mongo.TaskQueryBuilder;
 import org.springframework.data.domain.Page;
@@ -19,12 +18,10 @@ import java.time.ZonedDateTime;
 
 @Service
 public class TaskService {
-    private final TaskRepository repository;
     private final MongoDBTaskRepository mongoDBRepository;
     private final UserService userService;
 
-    public TaskService(TaskRepository repository, MongoDBTaskRepository mongoDBRepository, UserService userService) {
-        this.repository = repository;
+    public TaskService(MongoDBTaskRepository mongoDBRepository, UserService userService) {
         this.mongoDBRepository = mongoDBRepository;
         this.userService = userService;
     }
@@ -32,18 +29,13 @@ public class TaskService {
     public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, ZonedDateTime dueDate, Pageable pageable) {
         // TO-DO: Implementar buscar das tarefas associadas ao userId
 
-        Query query = new TaskQueryBuilder()
-                .withStatus(status)
-                .withPriority(priority)
-                .withDueDate(dueDate)
-                .build();
+        Query query = new TaskQueryBuilder().withStatus(status).withPriority(priority).withDueDate(dueDate).build();
 
         return mongoDBRepository.findTasksByDynamicFilters(query, pageable);
     }
 
     public Task findByIdOrThrowNotFound(String id) {
-        return mongoDBRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
+        return mongoDBRepository.findById(id).orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
     }
 
     public Task save(Task task) {
@@ -75,10 +67,10 @@ public class TaskService {
             throw new BadRequestException("Não é possível aninhar subtarefas. A tarefa pai deve ser uma tarefa principal");
         }
 
-        subTask.setParentTask(parentTask);
         subTask.setIsSubTask(true);
         parentTask.getSubTasks().add(subTask);
-        return mongoDBRepository.save(subTask);
+        mongoDBRepository.save(parentTask);
+        return subTask;
     }
 
     public void delete(String id, Long userId) {
@@ -103,12 +95,11 @@ public class TaskService {
 
         existingTask.setUser(user);
         existingTask.setStatus(newStatus);
-        return repository.save(existingTask);
+        return mongoDBRepository.save(existingTask);
     }
 
     private void assertThatAllSubTasksAreCompleted(Task parentTask) {
-        boolean hasIncompleteSubTasks = parentTask.getSubTasks().stream()
-                .anyMatch(subTask -> subTask.getStatus() != TaskStatus.DONE);
+        boolean hasIncompleteSubTasks = parentTask.getSubTasks().stream().anyMatch(subTask -> subTask.getStatus() != TaskStatus.DONE);
 
         if (hasIncompleteSubTasks) {
             throw new BadRequestException("Conclua todas as subtarefas pendentes antes de finalizar a tarefa principal.");

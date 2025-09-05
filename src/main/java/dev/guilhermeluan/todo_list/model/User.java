@@ -18,22 +18,14 @@ public class User implements UserDetails {
     private String password;
     private UserRole role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Task> tasks = new ArrayList<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<Task> tasks = new ArrayList<>();
 
     public User(Long id, String login, String password, UserRole role) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.role = role;
-    }
-
-    public User(Long id, String login, String password, UserRole role, List<Task> tasks) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.role = role;
-        this.tasks = tasks;
     }
 
     public User() {

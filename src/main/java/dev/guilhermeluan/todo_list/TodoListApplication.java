@@ -1,6 +1,5 @@
 package dev.guilhermeluan.todo_list;
 
-import dev.guilhermeluan.todo_list.repository.jpa.TaskRepository;
 import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

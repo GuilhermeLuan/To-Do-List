@@ -9,7 +9,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record TaskPostResponseDTO(
-        Long id,
+        String id,
         String title,
         String description,
         ZonedDateTime dueDate,
@@ -20,7 +20,7 @@ public record TaskPostResponseDTO(
 ) {
 
     public record SubtaskInfo(
-            Long id,
+            String id,
             String title,
             TaskStatus status
     ) {

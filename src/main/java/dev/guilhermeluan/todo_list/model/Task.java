@@ -2,6 +2,8 @@ package dev.guilhermeluan.todo_list.model;
 
 import jakarta.persistence.*;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class Task {
 
     private String description;
 
+    @Field(targetType = FieldType.DATE_TIME)
     private ZonedDateTime dueDate;
 
     private TaskStatus status;

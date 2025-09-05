@@ -7,15 +7,15 @@ import dev.guilhermeluan.todo_list.model.Priority;
 import dev.guilhermeluan.todo_list.model.Task;
 import dev.guilhermeluan.todo_list.model.TaskStatus;
 import dev.guilhermeluan.todo_list.model.User;
-import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
 import dev.guilhermeluan.todo_list.repository.jpa.TaskRepository;
-import dev.guilhermeluan.todo_list.repository.jpa.TaskSpecification;
+import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
+import dev.guilhermeluan.todo_list.repository.mongo.TaskQueryBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @Service
 public class TaskService {
@@ -29,14 +29,16 @@ public class TaskService {
         this.userService = userService;
     }
 
-    public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, LocalDate dueDate, Pageable pageable) {
+    public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, ZonedDateTime dueDate, Pageable pageable) {
         // TO-DO: Implementar buscar das tarefas associadas ao userId
-        //  e aplicar os filtros opcionais (status, priority, dueDate)
-        // Atualmente está retornando todas as tarefas sem filtro.
 
-        Specification<Task> spec = TaskSpecification.buildFilterSpec(userId, status, priority, dueDate);
-        return mongoDBRepository.findAll(pageable);
-        // return repository.findAll(spec, pageable);
+        Query query = new TaskQueryBuilder()
+                .withStatus(status)
+                .withPriority(priority)
+                .withDueDate(dueDate)
+                .build();
+
+        return mongoDBRepository.findTasksByDynamicFilters(query, pageable);
     }
 
     public Task findByIdOrThrowNotFound(String id) {

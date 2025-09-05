@@ -1,6 +1,7 @@
 package dev.guilhermeluan.todo_list;
 
 import dev.guilhermeluan.todo_list.repository.jpa.TaskRepository;
+import dev.guilhermeluan.todo_list.repository.mongo.MongoDBTaskRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -8,7 +9,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication()
 @EnableJpaRepositories(basePackages = "dev.guilhermeluan.todo_list.repository.jpa")
-@EnableMongoRepositories(basePackages = "dev.guilhermeluan.todo_list.repository.mongo")
+// @EnableMongoRepositories(basePackages = "dev.guilhermeluan.todo_list.repository.mongo")
+@EnableMongoRepositories(basePackageClasses = MongoDBTaskRepository.class)
 public class TodoListApplication {
 
     public static void main(String[] args) {

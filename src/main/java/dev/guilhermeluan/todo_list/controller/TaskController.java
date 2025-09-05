@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @RestController
 @RequestMapping("v1/tasks")
@@ -240,7 +241,7 @@ public class TaskController {
             @Parameter(description = "Filtrar por prioridade da tarefa", example = "HIGH")
             @RequestParam(required = false) Priority priority,
             @Parameter(description = "Filtrar por data de vencimento (formato: YYYY-MM-DD)", example = "2025-08-18")
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) ZonedDateTime dueDate,
             @Parameter(description = "Número da página (começa em 0)", example = "0")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Tamanho da página", example = "10")

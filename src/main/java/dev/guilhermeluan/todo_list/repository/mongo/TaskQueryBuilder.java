@@ -12,6 +12,13 @@ import java.util.List;
 public class TaskQueryBuilder {
     private final List<Criteria> criteriaList = new ArrayList<>();
 
+    public TaskQueryBuilder withUserId(String id) {
+        if (id != null && !id.isEmpty()) {
+            criteriaList.add(Criteria.where("id").is(id));
+        }
+        return this;
+    }
+
     public TaskQueryBuilder withStatus(TaskStatus status) {
         if (status != null) {
             criteriaList.add(Criteria.where("status").is(status));

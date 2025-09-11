@@ -1,6 +1,6 @@
 package dev.guilhermeluan.todo_list.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -30,6 +30,8 @@ public class Task {
     private Priority priority;
 
     private boolean isSubTask = false;
+
+    private String parentId;
 
     private User user;
 
@@ -120,6 +122,14 @@ public class Task {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     @Override

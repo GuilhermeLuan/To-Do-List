@@ -76,6 +76,7 @@ public class TaskService {
         }
 
         subTask.setIsSubTask(true);
+        subTask.setParentId(parentId);
         parentTask.getSubTasks().add(subTask);
         repository.save(parentTask);
         return subTask;

@@ -16,7 +16,7 @@ public interface TaskMapper {
     TaskPostResponseDTO toTaskPostResponse(Task taskSaved);
 
 //    @Mapping(target = "parentTaskId", source = "parentTask.id")
-//    @Mapping(target = "subtasks", source = "subTasks")
+    @Mapping(target = "subtasks", source = "subTasks")
     TaskGetResponseDTO toTaskResponseDTO(Task task);
 
     TaskPutRequestDTO toTaskPutRequest(Task task);

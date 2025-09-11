@@ -20,7 +20,6 @@ public record TaskGetResponseDTO(
 ) {
 
     public record SubtaskInfo(
-            String id,
             String title,
             String description,
             ZonedDateTime dueDate,

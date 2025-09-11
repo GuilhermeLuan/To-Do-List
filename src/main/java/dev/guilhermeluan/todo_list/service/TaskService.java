@@ -18,11 +18,11 @@ import java.time.ZonedDateTime;
 
 @Service
 public class TaskService {
-    private final MongoDBTaskRepository mongoDBRepository;
+    private final MongoDBTaskRepository repository;
     private final UserService userService;
 
-    public TaskService(MongoDBTaskRepository mongoDBRepository, UserService userService) {
-        this.mongoDBRepository = mongoDBRepository;
+    public TaskService(MongoDBTaskRepository repository, UserService userService) {
+        this.repository = repository;
         this.userService = userService;
     }
 
@@ -31,15 +31,17 @@ public class TaskService {
 
         Query query = new TaskQueryBuilder().withStatus(status).withPriority(priority).withDueDate(dueDate).build();
 
-        return mongoDBRepository.findTasksByDynamicFilters(query, pageable);
+        return repository.findTasksByDynamicFilters(query, pageable);
+
+
     }
 
     public Task findByIdOrThrowNotFound(String id) {
-        return mongoDBRepository.findById(id).orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("Tarefa não encontrada com o id: " + id));
     }
 
     public Task save(Task task) {
-        return mongoDBRepository.save(task);
+        return repository.save(task);
     }
 
     public void update(Task taskToUpdate, Long userId) {
@@ -55,7 +57,7 @@ public class TaskService {
         taskToUpdate.setUser(user);
         taskToUpdate.setSubTasks(taskFound.getSubTasks());
 
-        mongoDBRepository.save(taskToUpdate);
+        repository.save(taskToUpdate);
     }
 
     public Task createSubTask(String parentId, Task subTask, Long userId) {
@@ -69,14 +71,14 @@ public class TaskService {
 
         subTask.setIsSubTask(true);
         parentTask.getSubTasks().add(subTask);
-        mongoDBRepository.save(parentTask);
+        repository.save(parentTask);
         return subTask;
     }
 
     public void delete(String id, Long userId) {
         Task task = findByIdOrThrowNotFound(id);
         validateTaskOwnership(task, userId);
-        mongoDBRepository.deleteById(id);
+        repository.deleteById(id);
     }
 
     public void assertTaskExists(String id) {
@@ -95,7 +97,7 @@ public class TaskService {
 
         existingTask.setUser(user);
         existingTask.setStatus(newStatus);
-        return mongoDBRepository.save(existingTask);
+        return repository.save(existingTask);
     }
 
     private void assertThatAllSubTasksAreCompleted(Task parentTask) {

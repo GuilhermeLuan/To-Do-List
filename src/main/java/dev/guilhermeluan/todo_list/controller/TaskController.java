@@ -25,7 +25,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 @RestController
@@ -100,7 +99,7 @@ public class TaskController {
             @AuthenticationPrincipal UserDetails userDetails) {
         Task taskToSave = mapper.toTask(request);
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
-        taskToSave.setUser(user);
+        taskToSave.setUserId(user.getId());
 
         Task taskSaved = service.save(taskToSave);
 
@@ -170,7 +169,7 @@ public class TaskController {
         Task subTaskToSave = mapper.toTask(request);
         User user = userService.findUserByUsernameOrThrowNotFound(userDetails.getUsername());
 
-        subTaskToSave.setUser(user);
+        subTaskToSave.setUserId(user.getId());
 
         Task subTaskSaved = service.createSubTask(parentId, subTaskToSave, user.getId());
 

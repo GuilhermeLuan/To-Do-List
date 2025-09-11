@@ -35,7 +35,9 @@ public class TaskService {
         // Isso porque, atualmente, o usuário está sendo buscado no banco relacional, mas as tarefas estão no MongoDB.
         // Ou pesquisar uma forma de fazer essa junção entre os dois bancos.
 
-        Query query = new TaskQueryBuilder().withStatus(status).withPriority(priority).withDueDate(dueDate).build();
+        Query query = new TaskQueryBuilder().withUserId(userId).withStatus(status).withPriority(priority).withDueDate(dueDate).build();
+
+        Page<Task> tasksByDynamicFilters = repository.findTasksByDynamicFilters(query, pageable);
 
         return repository.findTasksByDynamicFilters(query, pageable);
 
@@ -60,7 +62,7 @@ public class TaskService {
             assertThatAllSubTasksAreCompleted(taskFound);
         }
 
-        taskToUpdate.setUser(user);
+        taskToUpdate.setUserId(user.getId());
         taskToUpdate.setSubTasks(taskFound.getSubTasks());
 
         repository.save(taskToUpdate);
@@ -102,7 +104,7 @@ public class TaskService {
             assertThatAllSubTasksAreCompleted(existingTask);
         }
 
-        existingTask.setUser(user);
+        existingTask.setUserId(user.getId());
         existingTask.setStatus(newStatus);
         return repository.save(existingTask);
     }
@@ -116,7 +118,7 @@ public class TaskService {
     }
 
     private void validateTaskOwnership(Task task, Long userId) {
-        if (!task.getUser().getId().equals(userId)) {
+        if (!task.getUserId().equals(userId)) {
             throw new ForbiddenException("A tarefa não pertence ao usuário autenticado.");
         }
     }

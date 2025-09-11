@@ -28,6 +28,12 @@ public class TaskService {
 
     public Page<Task> findAll(Long userId, TaskStatus status, Priority priority, ZonedDateTime dueDate, Pageable pageable) {
         // TO-DO: Implementar buscar das tarefas associadas ao userId
+        // Por enquanto, está retornando todas as tarefas, independente do usuário
+        // É necessário ajustar o TaskQueryBuilder para incluir o filtro por userId
+        // e garantir que apenas as tarefas do usuário autenticado sejam retornadas
+        // Além disso, talvez seja necessário mudar o banco de dados que contenham a tabela usuário para o MongoDB.
+        // Isso porque, atualmente, o usuário está sendo buscado no banco relacional, mas as tarefas estão no MongoDB.
+        // Ou pesquisar uma forma de fazer essa junção entre os dois bancos.
 
         Query query = new TaskQueryBuilder().withStatus(status).withPriority(priority).withDueDate(dueDate).build();
 

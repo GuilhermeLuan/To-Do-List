@@ -1,6 +1,7 @@
 package dev.guilhermeluan.todo_list.model;
 
 import jakarta.persistence.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
@@ -15,7 +16,7 @@ import java.util.Objects;
 public class Task {
 
     @Id
-    private String id;
+    private String id = new ObjectId().toString();
 
     private String title;
 
@@ -30,8 +31,6 @@ public class Task {
 
     private boolean isSubTask = false;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     private List<Task> subTasks = new ArrayList<>();
